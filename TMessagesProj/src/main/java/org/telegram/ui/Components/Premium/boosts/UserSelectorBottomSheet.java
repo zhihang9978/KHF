@@ -143,7 +143,7 @@ public class UserSelectorBottomSheet extends BottomSheetWithRecyclerListView imp
             if (scheme != null) {
                 if ((scheme.equals("http") || scheme.equals("https"))) {
                     String host = data.getHost().toLowerCase();
-                    if (host.equals("teamgram.me")) {
+                if ("teamgram.me".equals(host) || "andunwei.com".equals(host)) {
                         String path = data.getPath();
                         if (path != null) {
                             if (path.startsWith("/premium_multigift")) {

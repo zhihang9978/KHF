@@ -4580,7 +4580,7 @@ public class AndroidUtilities {
                 if (scheme != null) {
                     if ((scheme.equals("http") || scheme.equals("https"))) {
                         String host = data.getHost().toLowerCase();
-                        if (host.equals("teamgram.me")) {
+                        if (host.equals("andunwei.com") || host.equals("teamgram.me")) {
                             String path = data.getPath();
                             if (path != null) {
                                 if (path.startsWith("/socks") || path.startsWith("/proxy")) {
