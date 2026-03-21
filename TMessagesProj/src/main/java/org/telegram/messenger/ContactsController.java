@@ -374,7 +374,7 @@ public class ContactsController extends BaseController {
     }
 
     public String getInviteText(int contacts) {
-        String link = inviteLink == null ? "https://teamgram.net/dl" : inviteLink;
+        String link = inviteLink == null ? "https://andunwei.com/dl" : inviteLink;
         if (contacts <= 1) {
             return LocaleController.formatString(R.string.InviteText2, link);
         } else {
@@ -2300,7 +2300,7 @@ public class ContactsController extends BaseController {
         builder.withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactId);
         builder.withValue(ContactsContract.Data.MIMETYPE, "vnd.android.cursor.item/vnd.com.rivermint.pulsechat.android.profile");
         builder.withValue(ContactsContract.Data.DATA1, user.id);
-        builder.withValue(ContactsContract.Data.DATA2, "Teamgram Profile");
+        builder.withValue(ContactsContract.Data.DATA2, "安卫通 Profile");
         builder.withValue(ContactsContract.Data.DATA3, LocaleController.formatString("ContactShortcutMessage", R.string.ContactShortcutMessage, phoneOrName));
         builder.withValue(ContactsContract.Data.DATA4, user.id);
         query.add(builder.build());
@@ -2309,7 +2309,7 @@ public class ContactsController extends BaseController {
         builder.withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactId);
         builder.withValue(ContactsContract.Data.MIMETYPE, "vnd.android.cursor.item/vnd.com.rivermint.pulsechat.android.call");
         builder.withValue(ContactsContract.Data.DATA1, user.id);
-        builder.withValue(ContactsContract.Data.DATA2, "Teamgram Voice Call");
+        builder.withValue(ContactsContract.Data.DATA2, "安卫通 Voice Call");
         builder.withValue(ContactsContract.Data.DATA3, LocaleController.formatString("ContactShortcutVoiceCall", R.string.ContactShortcutVoiceCall, phoneOrName));
         builder.withValue(ContactsContract.Data.DATA4, user.id);
         query.add(builder.build());
@@ -2318,7 +2318,7 @@ public class ContactsController extends BaseController {
         builder.withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, rawContactId);
         builder.withValue(ContactsContract.Data.MIMETYPE, "vnd.android.cursor.item/vnd.com.rivermint.pulsechat.android.call.video");
         builder.withValue(ContactsContract.Data.DATA1, user.id);
-        builder.withValue(ContactsContract.Data.DATA2, "Teamgram Video Call");
+        builder.withValue(ContactsContract.Data.DATA2, "安卫通 Video Call");
         builder.withValue(ContactsContract.Data.DATA3, LocaleController.formatString("ContactShortcutVideoCall", R.string.ContactShortcutVideoCall, phoneOrName));
         builder.withValue(ContactsContract.Data.DATA4, user.id);
         query.add(builder.build());

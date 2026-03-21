@@ -1625,7 +1625,6 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                 }
 
                 NotificationCenter.getInstance(currentAccount).postNotificationName(NotificationCenter.mainUserInfoChanged);
-                LocaleController.getInstance().loadRemoteLanguages(currentAccount);
                 RestrictedLanguagesSelectActivity.checkRestrictedLanguages(true);
             }
         } else if (getParentActivity() instanceof ExternalActionActivity) {

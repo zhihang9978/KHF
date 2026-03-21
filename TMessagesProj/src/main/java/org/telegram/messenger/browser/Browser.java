@@ -210,20 +210,20 @@ public class Browser {
         if (link.startsWith("andunwei.com/")) {
             return link.substring("andunwei.com/".length());
         }
-        if (link.startsWith("teamgram.me/")) {
-            return link.substring("teamgram.me/".length());
+        if (link.startsWith("andunwei.com/")) {
+            return link.substring("andunwei.com/".length());
         }
         if (link.startsWith("http://andunwei.com/")) {
             return link.substring("http://andunwei.com/".length());
         }
-        if (link.startsWith("http://teamgram.me/")) {
-            return link.substring("http://teamgram.me/".length());
+        if (link.startsWith("http://andunwei.com/")) {
+            return link.substring("http://andunwei.com/".length());
         }
         if (link.startsWith("https://andunwei.com/")) {
             return link.substring("https://andunwei.com/".length());
         }
-        if (link.startsWith("https://teamgram.me/")) {
-            return link.substring("https://teamgram.me/".length());
+        if (link.startsWith("https://andunwei.com/")) {
+            return link.substring("https://andunwei.com/".length());
         }
         Matcher prefixMatcher = LaunchActivity.PREFIX_T_ME_PATTERN.matcher(link);
         if (prefixMatcher.find()) {
@@ -235,7 +235,7 @@ public class Browser {
     public static boolean urlMustNotHaveConfirmation(String url) {
         return (
             isTelegraphUrl(url, false, true) ||
-            url.matches("^(https://)?(andunwei\\.com|teamgram\\.me)/iv\\??(/.*|$)") || // andunwei.com/iv?
+            url.matches("^(https://)?andunwei\\.com/iv\\??(/.*|$)") || // andunwei.com/iv?
             url.matches("^(https://)?teamgram\\.net/(blog|tour)(/.*|$)") || // telegram.org/blog, telegram.org/tour
             url.matches("^(https://)?fragment\\.com(/.*|$)") // fragment.com
         );
@@ -316,7 +316,7 @@ public class Browser {
         if (tryTelegraph) {
             try {
                 String host = AndroidUtilities.getHostAuthority(uri);
-                if (UserConfig.getInstance(UserConfig.selectedAccount).getCurrentUser() != null && (isTelegraphUrl(host, true) || "teamgram.net".equalsIgnoreCase(host) && (uri.toString().toLowerCase().contains("teamgram.net/faq") || uri.toString().toLowerCase().contains("teamgram.net/privacy") || uri.toString().toLowerCase().contains("teamgram.net/blog")))) {
+                if (UserConfig.getInstance(UserConfig.selectedAccount).getCurrentUser() != null && (isTelegraphUrl(host, true) || "andunwei.com".equalsIgnoreCase(host) && (uri.toString().toLowerCase().contains("andunwei.com/faq") || uri.toString().toLowerCase().contains("andunwei.com/privacy") || uri.toString().toLowerCase().contains("andunwei.com/blog")))) {
                     final AlertDialog[] progressDialog = new AlertDialog[] {
                         new AlertDialog(context, AlertDialog.ALERT_TYPE_SPINNER)
                     };
@@ -708,7 +708,7 @@ public class Browser {
             return true;
         } else if ("tg2".equals(uri.getScheme())) {
             return true;
-        } else if ("telegram.dog".equals(host)) {
+        } else if ("andunwei.com".equals(host)) {
             String path = uri.getPath();
             if (path != null && path.length() > 1) {
                 if (all) {
@@ -738,10 +738,10 @@ public class Browser {
                 }
                 return true;
             }
-        } else if ("teamgram.net".equals(host) && uri != null && uri.getPath() != null && uri.getPath().startsWith("/blog/")) {
+        } else if ("andunwei.com".equals(host) && uri != null && uri.getPath() != null && uri.getPath().startsWith("/blog/")) {
             return true;
         } else if (all) {
-            if (host.endsWith("teamgram.net")) {
+            if (host.endsWith("andunwei.com")) {
                 return true;
             }
         }

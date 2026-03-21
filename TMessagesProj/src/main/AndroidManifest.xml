@@ -96,8 +96,7 @@
 
     <application
         android:name="org.telegram.messenger.ApplicationLoader"
-        android:allowBackup="true"
-        android:restoreAnyVersion="true"
+        android:allowBackup="false"
         android:backupAgent=".BackupAgent"
         android:hardwareAccelerated="true"
         android:largeHeap="true"
@@ -108,11 +107,9 @@
         android:preserveLegacyExternalStorage="true"
         android:allowAudioPlaybackCapture="true"
         tools:replace="android:supportsRtl"
-        android:usesCleartextTraffic="true"
+        android:usesCleartextTraffic="false"
         android:enableOnBackInvokedCallback="true"
     >
-        <!-- usesCleartextTraffic for browser supporting opening http:// links -->
-
         <activity-alias
             android:enabled="true"
             android:name="org.telegram.messenger.DefaultIcon"
@@ -258,8 +255,8 @@
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:host="teamgram.me" android:scheme="http" />
-                <data android:host="teamgram.me" android:scheme="https" />
+                <data android:host="andunwei.com" android:scheme="http" />
+                <data android:host="andunwei.com" android:scheme="https" />
             </intent-filter>
             <intent-filter android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round" android:priority="1">
                 <action android:name="android.intent.action.VIEW"/>

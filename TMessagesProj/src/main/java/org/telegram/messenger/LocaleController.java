@@ -517,6 +517,8 @@ public class LocaleController {
     public HashMap<String, LocaleInfo> languagesDict = new HashMap<>();
 
     private ArrayList<LocaleInfo> otherLanguages = new ArrayList<>();
+    private static final String DEFAULT_BRAND_LANGUAGE_KEY = "zh_cn";
+    private static final String DEFAULT_BRAND_LANGUAGE_FALLBACK_KEY = "zh_cn";
 
     private static volatile LocaleController Instance = null;
     public static LocaleController getInstance() {
@@ -630,10 +632,17 @@ public class LocaleController {
         languages.add(localeInfo);
         languagesDict.put(localeInfo.shortName, localeInfo);
 
+        localeInfo = new LocaleInfo();
+        localeInfo.name = "\u7b80\u4f53\u4e2d\u6587";
+        localeInfo.nameEnglish = "Chinese (Simplified)";
+        localeInfo.shortName = DEFAULT_BRAND_LANGUAGE_KEY;
+        localeInfo.pluralLangCode = "zh";
+        localeInfo.pathToFile = null;
+        localeInfo.builtIn = true;
+        languages.add(localeInfo);
+        languagesDict.put(localeInfo.getKey(), localeInfo);
+
         loadOtherLanguages();
-        if (remoteLanguages.isEmpty()) {
-            AndroidUtilities.runOnUIThread(() -> loadRemoteLanguages(UserConfig.selectedAccount));
-        }
 
         for (int a = 0; a < otherLanguages.size(); a++) {
             LocaleInfo locale = otherLanguages.get(a);
@@ -680,6 +689,20 @@ public class LocaleController {
             String lang = preferences.getString("language", null);
             if (lang != null) {
                 currentInfo = getLanguageFromDict(lang);
+                if (currentInfo != null) {
+                    override = true;
+                }
+            }
+
+            if (currentInfo == null) {
+                currentInfo = getLanguageFromDict(DEFAULT_BRAND_LANGUAGE_KEY);
+                if (currentInfo != null) {
+                    override = true;
+                }
+            }
+
+            if (currentInfo == null) {
+                currentInfo = getLanguageFromDict(DEFAULT_BRAND_LANGUAGE_FALLBACK_KEY);
                 if (currentInfo != null) {
                     override = true;
                 }

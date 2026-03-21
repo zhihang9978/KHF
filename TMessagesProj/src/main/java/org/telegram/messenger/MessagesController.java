@@ -5672,11 +5672,7 @@ public class MessagesController extends BaseController implements NotificationCe
             dcDomainName = config.dc_txt_domain_name;
             webFileDatacenterId = config.webfile_dc_id;
             if (config.suggested_lang_code != null) {
-                boolean loadRemote = suggestedLangCode == null || !suggestedLangCode.equals(config.suggested_lang_code);
                 suggestedLangCode = config.suggested_lang_code;
-                if (loadRemote) {
-                    LocaleController.getInstance().loadRemoteLanguages(currentAccount);
-                }
             }
             Theme.loadRemoteThemes(currentAccount, false);
             Theme.checkCurrentRemoteTheme(false);

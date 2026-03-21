@@ -4580,7 +4580,7 @@ public class AndroidUtilities {
                 if (scheme != null) {
                     if ((scheme.equals("http") || scheme.equals("https"))) {
                         String host = data.getHost().toLowerCase();
-                        if (host.equals("andunwei.com") || host.equals("teamgram.me")) {
+                        if (host.equals("andunwei.com")) {
                             String path = data.getPath();
                             if (path != null) {
                                 if (path.startsWith("/socks") || path.startsWith("/proxy")) {
@@ -4598,7 +4598,7 @@ public class AndroidUtilities {
                     } else if (scheme.equals("tg2")) {
                         String url = data.toString();
                         if (url.startsWith("tg2:proxy") || url.startsWith("tg2://proxy") || url.startsWith("tg2:socks") || url.startsWith("tg2://socks")) {
-                            url = url.replace("tg2:proxy", "tg2://teamgram.net").replace("tg2://proxy", "tg2://teamgram.net").replace("tg2://socks", "tg2://teamgram.net").replace("tg2:socks", "tg2://teamgram.net.");
+                            url = url.replace("tg2:proxy", "tg2://andunwei.com").replace("tg2://proxy", "tg2://andunwei.com").replace("tg2://socks", "tg2://andunwei.com").replace("tg2:socks", "tg2://andunwei.com.");
                             data = Uri.parse(url);
                             address = data.getQueryParameter("server");
                             if (AndroidUtilities.checkHostForPunycode(address)) {
