@@ -35,7 +35,7 @@
     <string name="SentAppCode">我们已向您其他设备上的 **安卫通** 应用发送了一条验证码消息。</string>
     <string name="SentAppCodeWithPhone">我们已将代码发送到您其他设备上 %1$s 的 **安卫通** 应用程序。</string>
     <string name="SentAppCodeTitle">查看您的 安卫通 消息</string>
-    <string name="SentFragmentCode">请在 Fragment 的匿名号码板块中获取 %1$s 的验证码。</string>
+    <string name="SentFragmentCode">请在匿名号码板块中获取 %1$s 的验证码。</string>
     <string name="SentSmsCodeTitle">输入验证码</string>
     <string name="OpenFragment">打开片段</string>
     <string name="SentCallCode">我们正在呼叫您的手机 **%1$s**。\n\n请不要接听，安卫通 将会自动处理接下来的事情。</string>
@@ -106,7 +106,7 @@
     <string name="PaymentCardInfo">付款信息</string>
     <string name="PaymentCardTitle">银行卡</string>
     <string name="PaymentCardNumber">卡号</string>
-    <string name="PaymentCardCvv">安全码（CVV）</string>
+    <string name="PaymentCardCvv">安全码</string>
     <string name="PaymentCardExpireDate">月/年</string>
     <string name="PaymentBillingAddress">账单地址</string>
     <string name="PaymentCardName">姓名</string>
@@ -297,7 +297,7 @@
     <string name="PreviewFeedback2">布局错误？</string>
     <string name="PreviewFeedbackAuto">自动生成布局</string>
     <string name="SendStickerPreview">发送贴纸</string>
-    <string name="SendGifPreview">发送 GIF</string>
+    <string name="SendGifPreview">发送动图</string>
     <string name="SendEmojiPreview">发送表情符号</string>
     <string name="CopyEmojiPreview">复制表情符号</string>
     <string name="SetAsEmojiStatus">设置为状态</string>
@@ -667,7 +667,7 @@
     <string name="ChannelMessageMap">%1$s 发布了一个位置</string>
     <string name="ChannelMessageLiveLocation">%1$s 正在共享实时位置</string>
     <string name="ChannelMessageDocument">%1$s 发布了一个文件</string>
-    <string name="ChannelMessageGIF">%1$s 发布了一张 GIF</string>
+    <string name="ChannelMessageGIF">%1$s 发布了一张动图</string>
     <string name="ChannelMessageFew">"%1$s 发布了 %2$s "</string>
     <string name="ChannelMessageAlbum">%1$s 发布了一组图片</string>
     <string name="ChannelMessageAudio">%1$s 发布了一条语音留言</string>
@@ -737,7 +737,7 @@
     <string name="UserRestrictionsSendText">发送短信</string>
     <string name="UserRestrictionsSendMedia">发送媒体</string>
     <string name="UserRestrictionsSendPolls">发起投票</string>
-    <string name="UserRestrictionsSendStickers">发送贴纸和 GIF</string>
+    <string name="UserRestrictionsSendStickers">发送贴纸和动图</string>
     <string name="UserRestrictionsEmbedLinks">显示链接预览</string>
     <string name="UserRestrictionsChangeInfo">修改群组信息</string>
     <string name="UserRestrictionsPinMessages">置顶消息</string>
@@ -983,7 +983,7 @@
     <string name="EventLogToggledSignaturesProfilesOff">un1 禁用了作者的个人资料</string>
     <string name="EventLogRestrictedUntil">修改了 %1$s 的权限\n\n时长: %2$s</string>
     <string name="EventLogDefaultPermissions">更改了默认权限</string>
-    <string name="EventLogRestrictedSendStickers">发送贴纸和 GIF</string>
+    <string name="EventLogRestrictedSendStickers">发送贴纸和动图</string>
     <string name="EventLogRestrictedSendMedia">发送媒体</string>
     <string name="EventLogRestrictedChangeInfo">修改群组信息</string>
     <string name="EventLogRestrictedInviteUsers">邀请新成员</string>
@@ -1238,7 +1238,7 @@
     <string name="SlideToCancel2">滑动取消</string>
     <string name="CancelRound">取消</string>
     <string name="SaveToDownloads">保存到下载文件夹</string>
-    <string name="SaveToGIFs">保存到 GIF 库</string>
+    <string name="SaveToGIFs">保存到动图库</string>
     <string name="SaveToMusic">保存到音乐库</string>
     <string name="ShareFile">分享</string>
     <string name="ApplyLocalizationFile">使用本地化配置</string>
@@ -1255,7 +1255,7 @@
     <string name="QualityCached">・缓存</string>
     <string name="VideoPlayerSpeed">速度</string>
     <string name="VideoPlayerLoop">循环</string>
-    <string name="VideoPlayerChromecast">Chromecast</string>
+    <string name="VideoPlayerChromecast">投屏设备</string>
     <string name="SendAsFile">发送原图</string>
     <string name="SendAsFiles">发送原图</string>
     <string name="OpenUrlTitle">打开链接</string>
@@ -1291,7 +1291,7 @@
     <string name="MoreInfo">详情</string>
     <string name="ShareSendTo">转发到...</string>
     <string name="ShareComment">补充评论...</string>
-    <string name="TapHereGifs">点击这里访问保存的 GIF</string>
+    <string name="TapHereGifs">点击这里查看已保存的动图</string>
     <string name="TapHereEmoji">点击 %1$s 可访问更多表情符号。</string>
     <string name="PinMessage">置顶</string>
     <string name="PinNotify">通知所有成员</string>
@@ -1429,7 +1429,7 @@
     <string name="AttachDocumentsRestricted">该群组的管理员已限制您在此发送文档，直到 %1$s</string>
     <string name="AttachInlineRestricted">群组管理员已禁止您发送机器人内容至 %1$s</string>
     <string name="AttachStickersRestricted">群组管理员已禁止您发送贴纸至 %1$s</string>
-    <string name="AttachGifRestricted">群组管理员已禁止您发送 GIF 至 %1$s</string>
+    <string name="AttachGifRestricted">群组管理员已禁止您向 %1$s 发送动图</string>
     <string name="AttachPlainRestricted">该群组的管理员已限制您在此发送短信，直到 %1$s</string>
     <string name="SendMessageRestricted">您已被管理员禁言至 %1$s</string>
     <string name="AttachMediaRestrictedForever">群组管理员已禁止您发送媒体文件。</string>
@@ -1441,7 +1441,7 @@
     <string name="AttachVideoRestrictedForever">该群组的管理员已限制您在此发送视频。</string>
     <string name="AttachInlineRestrictedForever">群组管理员已禁止您发送机器人内容。</string>
     <string name="AttachStickersRestrictedForever">群组管理员已禁止您发送贴纸。</string>
-    <string name="AttachGifRestrictedForever">群组管理员已禁止您发送 GIF。</string>
+    <string name="AttachGifRestrictedForever">群组管理员已禁止您发送动图。</string>
     <string name="AttachPlainRestrictedForever">该群组的管理员已限制您发送短信。</string>
     <string name="SendMessageRestrictedForever">您已被管理员禁言</string>
     <string name="VoiceMessagesRestrictedByPrivacy">**%1$s** 不接受语音留言。</string>
@@ -1456,7 +1456,7 @@
     <string name="GlobalAttachRoundRestricted">该群组不允许发送圆形视频。</string>
     <string name="GlobalAttachInlineRestricted">此群组不允许 直插机器人。</string>
     <string name="GlobalAttachStickersRestricted">此群组不允许发送贴纸。</string>
-    <string name="GlobalAttachGifRestricted">此群组不允许发送 GIF。</string>
+    <string name="GlobalAttachGifRestricted">此群组不允许发送动图。</string>
     <string name="GlobalAttachEmojiRestricted">该群组不允许发送短信。</string>
     <string name="GlobalSendMessageRestricted">全员禁言中</string>
     <string name="AttachMediaPreview">消息预览</string>
@@ -1465,7 +1465,7 @@
     <string name="AttachMediaVideoDeselected">视频已取消选择。</string>
     <string name="AttachMediaDragHint">拖动媒体进行重新排序</string>
     <string name="ChatAdmin">管理员</string>
-    <string name="ApkRestricted">此应用已被限制安装 APK，你可以在系统设置中启用它。</string>
+    <string name="ApkRestricted">此应用当前被限制安装外部安装包，您可以在系统设置中启用此权限。</string>
     <string name="UnreadMessages">未读消息</string>
     <string name="SearchStickersHint">搜索贴纸包</string>
     <string name="SearchTrendingStickersHint">搜索热门贴纸</string>
@@ -1474,7 +1474,7 @@
     <string name="MapPreviewProvider">地图预览提供商</string>
     <string name="MapPreviewProviderTitle">地图预览提供商</string>
     <string name="MapPreviewProviderTelegram">安卫通</string>
-    <string name="MapPreviewProviderGoogle">Google 地图</string>
+    <string name="MapPreviewProviderGoogle">谷歌地图</string>
     <string name="MapPreviewProviderYandex">扬德克斯</string>
     <string name="MapPreviewProviderNobody">不使用预览</string>
     <string name="InstallGoogleMaps">安装 谷歌 地图？</string>
@@ -1640,7 +1640,7 @@
     <string name="NotificationMessageGame">"%1$s 邀请您玩 %2$s "</string>
     <string name="NotificationMessageGameScored">%1$s 在 %2$s 中获得了 %3$s 分</string>
     <string name="NotificationMessageDocument">%1$s 给您发送了一个文件</string>
-    <string name="NotificationMessageGif">%1$s 给您发送了一张 GIF</string>
+    <string name="NotificationMessageGif">%1$s 给您发送了一张动图</string>
     <string name="NotificationMessageAudio">%1$s 给您发送了一条语音留言</string>
     <string name="NotificationMessageRound">%1$s 给您发送了一条视频留言</string>
     <string name="NotificationMessageMusic">%1$s 给您发送了一首音乐</string>
@@ -1661,7 +1661,7 @@
     <string name="NotificationMessageGroupGame">%1$s 邀请您加入群组 %2$s 来玩 %3$s</string>
     <string name="NotificationMessageGroupGameScored">%1$s  在 %3$s 中获得了 %4$s 分在群组 %2$s</string>
     <string name="NotificationMessageGroupDocument">%1$s 发送了一个文件到群组 %2$s</string>
-    <string name="NotificationMessageGroupGif">%1$s 发送了一张 GIF 到群组 %2$s</string>
+    <string name="NotificationMessageGroupGif">%1$s 向群组 %2$s 发送了一张动图</string>
     <string name="NotificationMessageGroupInvoice">%1$s 给群组 %2$s 发送了一张 %3$s 的账单</string>
     <string name="NotificationMessageGroupAudio">%1$s 发送了一条语音留言到群组 %2$s</string>
     <string name="NotificationMessageGroupRound">%1$s 发送了一条视频留言到群组 %2$s</string>
@@ -1801,7 +1801,7 @@
     <string name="InviteToTelegram">邀请加入 团队</string>
     <string name="ShareTelegram2">分享 安卫通</string>
     <string name="UpdateContactsTitle">更新联系人？</string>
-    <string name="UpdateContactsMessage">安卫通 检测到很多未同步的联系人，您想现在将其同步吗？如果您在使用自己的设备、SIM 卡和 谷歌 帐户，请选择‘确定’。</string>
+    <string name="UpdateContactsMessage">安卫通 检测到许多尚未同步的联系人，您想现在同步吗？如果您正在使用自己的设备、手机卡和谷歌账号，请选择“确定”。</string>
     <string name="SortedByName">按姓名排序</string>
     <string name="SortedByLastSeen">按最后上线时间排序</string>
     <string name="AddContactByPhone">添加 %1$s</string>
@@ -2050,7 +2050,7 @@
     <string name="StickersReorderHint">移动贴纸以排序。</string>
     <string name="NoStickers">暂无贴纸</string>
     <string name="NoStickersFound">未找到贴纸</string>
-    <string name="NoGIFsFound">未找到 GIF</string>
+    <string name="NoGIFsFound">未找到动图</string>
     <string name="NoEmojiFound">未找到 表情符号</string>
     <string name="NoReactionsFound">未发现任何反应</string>
     <string name="NoEffectsFound">没有发现任何效果</string>
@@ -2061,7 +2061,7 @@
     <string name="MasksInfo">您可以在你要发送的图片或视频里添加装饰，只需在发送前开启图片编辑器进行编辑即可。</string>
     <string name="FeaturedStickers">热门贴纸</string>
     <string name="FeaturedEmojiPacks">流行表情包</string>
-    <string name="FeaturedGifs">热门GIF</string>
+    <string name="FeaturedGifs">热门动图</string>
     <string name="ShowMoreStickers">显示更多贴纸</string>
     <string name="ShowMoreEmojiPacks">显示更多表情符号</string>
     <string name="SuggestStickers">通过 表情符号 推荐贴纸</string>
@@ -2252,7 +2252,7 @@
     <string name="CustomNotifications">自定义通知</string>
     <string name="ProfilePopupNotification">浮动通知</string>
     <string name="ProfilePopupNotificationInfo">当您没有打开 安卫通 时，来自此联系人的新消息也会出现在您的屏幕上。</string>
-    <string name="NotificationsLed">LED 指示灯</string>
+    <string name="NotificationsLed">通知指示灯</string>
     <string name="NotificationsLedColor">颜色</string>
     <string name="ColorBlue">蓝色</string>
     <string name="ColorRed">红色</string>
@@ -2265,7 +2265,7 @@
     <string name="FontType">字体类型</string>
     <string name="ColorViolet">紫色</string>
     <string name="ColorOrange">橙色</string>
-    <string name="NotificationsLedInfo">LED 指示灯是在部分设备上能够提示新消息的闪烁的小灯。</string>
+    <string name="NotificationsLedInfo">通知指示灯是在部分设备上用于提示新消息的闪烁小灯。</string>
     <string name="PriorityInfo">高优先级通知能够在免打扰模式开启时依然正常提醒。</string>
     <string name="General">通用</string>
     <string name="NotificationsMuted">免打扰</string>
@@ -2414,7 +2414,7 @@
     <string name="AutoDownloadFilesOn">文件</string>
     <string name="AutoDownloadFilesTitle">自动下载文件和音乐</string>
     <string name="AutoDownloadPhotosTitle">自动下载图片</string>
-    <string name="AutoDownloadVideosTitle">自动下载视频和 GIF</string>
+    <string name="AutoDownloadVideosTitle">自动下载视频和动图</string>
     <string name="AutoDownloadMaxVideoSize">视频大小限制</string>
     <string name="AutoDownloadMaxFileSize">文件大小限制</string>
     <string name="AutoDownloadPreloadMusic">预加载下一曲</string>
@@ -2431,7 +2431,7 @@
     <string name="AutoDownloadTypes">媒体类型</string>
     <string name="AutoDownloadAudioInfo">由于语音留言体积很小，它们将始终自动下载。</string>
     <string name="NoMediaAutoDownload">禁用自动下载</string>
-    <string name="NoGIFs">无 GIF</string>
+    <string name="NoGIFs">暂无动图</string>
     <string name="AutomaticDownloadSettings">自动下载设置</string>
     <string name="AutomaticDownloadSettingsInfoMobile">您可以更改媒体的自动下载设置，以减少通过移动网络连接时的数据使用量。</string>
     <string name="AutomaticDownloadSettingsInfoWiFi">您可以更改媒体的自动下载设置，以减少连接到 无线网络时的数据使用量。</string>
@@ -2504,7 +2504,7 @@
     <string name="DirectShareInfo">在分享菜单中显示最近对话</string>
     <string name="Emoji">表情符号 包</string>
     <string name="LargeEmoji">大号 表情符号</string>
-    <string name="TelegramVersion">适用于 Android 的 安卫通 %1$s</string>
+    <string name="TelegramVersion">安卫通 安卓版 %1$s</string>
     <string name="DebugMenu">调试菜单</string>
     <string name="DebugMenuLongPress">再次长按进入调试菜单</string>
     <string name="DebugSendLogs">发送日志</string>
@@ -2524,8 +2524,8 @@
     <string name="DebugMenuResetContacts">重置已导入的通讯录</string>
     <string name="DebugMenuClearMediaCache">清除已发送的媒体缓存</string>
     <string name="DebugMenuCallSettings">通话设置</string>
-    <string name="DebugMenuClearWebViewCache">清除WebView缓存</string>
-    <string name="DebugMenuClearWebViewCookies">清除 WebView cookie</string>
+    <string name="DebugMenuClearWebViewCache">清除网页组件缓存</string>
+    <string name="DebugMenuClearWebViewCookies">清除网页组件站点数据</string>
     <string name="DebugMenuEnableWebViewDebug">启用 网页视图 调试</string>
     <string name="DebugMenuDisableWebViewDebug">禁用 网页视图 调试</string>
     <string name="DebugMenuWebViewDebugEnabled">调试已启用！</string>
@@ -2998,7 +2998,7 @@
     <string name="EnablePasscode">启用密码</string>
     <string name="ConfirmCreatePasscode">重新输入您的密码</string>
     <string name="PasscodeSwitchToPassword">切换到密码</string>
-    <string name="PasscodeSwitchToPIN">切换为 PIN 码</string>
+    <string name="PasscodeSwitchToPIN">切换为数字密码</string>
     <string name="PasscodesDoNotMatchTryAgain">密码不匹配。请再试一次。</string>
     <string name="EnterYourPasscode">请输入您的锁定码</string>
     <string name="EnterYourPasscodeInfo">请输入您当前的 安卫通 密码来管理此选项。</string>
@@ -3054,7 +3054,7 @@
     <string name="NoSharedFilesSecret">此对话中共享的所有文件都会在这里显示。</string>
     <string name="NoSharedLinksSecret">此对话中共享的所有链接都会在这里显示。</string>
     <string name="NoSharedVoiceSecret">此对话中发送的所有语音留言都会在这里显示。</string>
-    <string name="NoSharedGifSecret">此对话中的 GIF 将显示在此处。</string>
+    <string name="NoSharedGifSecret">此对话中的动图将显示在此处。</string>
     <string name="Map">地图</string>
     <string name="Satellite">卫星</string>
     <string name="Hybrid">混合</string>
@@ -3113,7 +3113,7 @@
     <string name="LiveLocationAlertExpandMessage">您希望将位置共享延长多久？</string>
     <string name="LiveLocationAlertPrivate">选择 %1$s 在多长时间内可看到你的精确位置。</string>
     <string name="LiveLocationAlertGroup">选择这个群的成员在多长时间内可看到你的精确位置。</string>
-    <string name="GpsDisabledAlertText">请打开 GPS 以使用位置服务。</string>
+    <string name="GpsDisabledAlertText">请开启定位服务以使用位置功能。</string>
     <string name="ChatSetThisLocation">设置为此地点</string>
     <string name="PlacesInThisArea">附近</string>
     <string name="OpenInMaps">在地图中打开</string>
@@ -3167,7 +3167,7 @@
     <string name="ShowAllMedia">显示所有图片和视频</string>
     <string name="ShowStickers">显示贴纸</string>
     <string name="ShowAllFiles">显示所有文件</string>
-    <string name="ShowAllGIFs">显示全部 GIF</string>
+    <string name="ShowAllGIFs">显示全部动图</string>
     <string name="TapToDownload">点按下载</string>
     <string name="OpenFile">打开文件</string>
     <string name="ShowInChat">在对话中查看</string>
@@ -3194,9 +3194,9 @@
     <string name="ImagesTab2">图片</string>
     <string name="GifsTab2">动图</string>
     <string name="SearchImages">查找图片</string>
-    <string name="SearchGifs">查找 GIF</string>
+    <string name="SearchGifs">搜索动图</string>
     <string name="SearchImagesTitle">通过网络搜索</string>
-    <string name="SearchGifsTitle">搜索 GIF</string>
+    <string name="SearchGifsTitle">搜索动图</string>
     <string name="CameraPermissionText">点按来允许访问您的相机</string>
     <string name="GalleryPermissionText">点按来允许访问您的相册</string>
     <string name="CropImage">裁剪图片</string>
@@ -3225,11 +3225,11 @@
     <string name="AreYouSureDeletePhoto">确定删除此图片？</string>
     <string name="AreYouSureDeleteVideoTitle">删除视频</string>
     <string name="AreYouSureDeleteVideo">确定删除此视频？</string>
-    <string name="AreYouSureDeleteGIFTitle">删除 GIF</string>
-    <string name="AreYouSureDeleteGIF">您确定要删除此 GIF 吗？</string>
+    <string name="AreYouSureDeleteGIFTitle">删除动图</string>
+    <string name="AreYouSureDeleteGIF">您确定要删除这张动图吗？</string>
     <string name="AreYouSureDeletePhotoEveryone">您确定要为所有人删除此照片吗？</string>
     <string name="AreYouSureDeleteVideoEveryone">您确定要为所有人删除此视频吗？</string>
-    <string name="AreYouSureDeleteGIFEveryone">您确定要为所有人删除此 GIF 吗？</string>
+    <string name="AreYouSureDeleteGIFEveryone">您确定要为所有人删除这张动图吗？</string>
     <string name="DiscardChanges">要放弃修改吗？</string>
     <string name="PhotoEditorDiscardAlert">您确定要放弃所有更改吗？</string>
     <string name="ClearSearch">是否清除搜索历史？</string>
@@ -3268,8 +3268,8 @@
     <string name="VideoSavedHint">视频已存到相册里</string>
     <string name="PhotoSavedToDownloadsHintLinked">照片保存至 **下载**。</string>
     <string name="VideoSavedToDownloadsHintLinked">视频保存到 **下载**。</string>
-    <string name="GifSavedHint">添加到保存的 GIF</string>
-    <string name="GifSavedToDownloadsHintLinked">GIF 保存到 **下载**。</string>
+    <string name="GifSavedHint">已添加到保存的动图</string>
+    <string name="GifSavedToDownloadsHintLinked">动图已保存到 **下载**。</string>
     <string name="AudioSavedHint">文件保存至音乐</string>
     <string name="FileSavedHintLinked">文件保存到 **下载**。</string>
     <string name="FilesSavedHintLinked_one">文件保存到 **下载**。</string>
@@ -3573,7 +3573,7 @@
     <string name="SyncContactsDeleteText">这将清空 安卫通 服务器上的所有通讯录资料。\n\n如果 **同步通讯录** 选项是开启的，这些通讯录资料会被重新同步。</string>
     <string name="SendingVideo">正在发送视频...</string>
     <string name="ConvertingVideo">正在转换视频...</string>
-    <string name="SendingGif">正在发送 GIF...</string>
+    <string name="SendingGif">正在发送动图...</string>
     <string name="Bot">机器人</string>
     <string name="BotShare">分享</string>
     <string name="BotSettings">设置</string>
@@ -3941,7 +3941,7 @@
     <string name="PermissionNoContactsSharing">**安卫通** 需要访问联系人，才能与朋友分享联系人。点击 设置 -&gt; 权限，然后打开 **联系人**。</string>
     <string name="PermissionNoContactsSaving">**安卫通** 需要访问联系人，才能将联系人保存到您的手机。点击 设置 -&gt; 权限，然后打开 **联系人**。</string>
     <string name="PermissionNoStorageAvatar">**安卫通** 需要存储访问权限，以便您可以上传个人资料图片。点击设置 -&gt; 权限，然后打开 **Files 和 media**。</string>
-    <string name="PermissionNoAudioStorageStory">**安卫通** 需要访问音乐文件才能与您的故事一起上传。点击设置 -&gt; 权限，然后打开 **Music 和 Audio**。</string>
+    <string name="PermissionNoAudioStorageStory">**安卫通** 需要访问音乐文件，才能与您的故事一起上传。请点击“设置” -&gt; “权限”，然后开启 **音乐和音频** 权限。</string>
     <string name="PermissionDrawAboveOtherApps">安卫通 需要使用出现在其他应用上的权限以在画中画模式中播放视频。</string>
     <string name="PermissionDrawAboveOtherAppsGroupCall">即使您不在 安卫通 范围内，覆盖模式也可让您使用一键通并查看谁在通话。</string>
     <string name="PermissionOpenSettings">设置</string>
@@ -4675,8 +4675,8 @@
     <string name="Voice_other">%1$d 条语音留言</string>
     <string name="Links_one">%1$d 条链接</string>
     <string name="Links_other">%1$d 条链接</string>
-    <string name="GIFs_one">%1$d 张 GIF</string>
-    <string name="GIFs_other">%1$d 张 GIF</string>
+    <string name="GIFs_one">%1$d 张动图</string>
+    <string name="GIFs_other">%1$d 张动图</string>
     <string name="BlockedUsersCount_one">%1$d 位已被屏蔽的用户</string>
     <string name="BlockedUsersCount_other">%1$d 位已被屏蔽的用户</string>
     <string name="ForwardedFile_one">%1$d 个转发的文件</string>
@@ -5128,7 +5128,7 @@
     <string name="TerminateOldSessionHeader">自动终止旧会话</string>
     <string name="IfInactiveFor">如果不活跃</string>
     <string name="AuthAnotherClientInfo5">前往 *andunwei.com/desktop* 或 *web.andunwei.com* 获取二维码</string>
-    <string name="SessionsListInfo">官方 安卫通 应用程序适用于 Android、iPhone、iPad、Windows、macOS 和 Linux。</string>
+    <string name="SessionsListInfo">官方 安卫通 提供安卓、苹果设备及桌面系统等多平台版本。</string>
     <string name="MigrateOldFolder">将旧文件夹迁移到范围存储</string>
     <string name="SelectThisDay">选择这一天</string>
     <string name="NoMessagesForThisDay">今天没有消息</string>
@@ -5161,7 +5161,7 @@
     <string name="DidNotGetTheCodePhone">获取此手机上的代码</string>
     <string name="MigrateOldFolderButton">立即移动文件</string>
     <string name="MigrateOldFolderTitle">将文件迁移到分区存储</string>
-    <string name="MigrateOldFolderDescription">由于 **Google** 所做的更改，我们需要将您使用 **安卫通** 下载的文件移动到新文件夹。\n\n 这可能需要一些时间。在移动文件时，您可以继续使用该应用程序。</string>
+    <string name="MigrateOldFolderDescription">由于 **谷歌** 的更改，我们需要将您通过 **安卫通** 下载的文件移动到新的文件夹。\n\n这可能需要一些时间。在移动过程中，您仍可继续使用本应用。</string>
     <string name="MigratingFiles">迁移文件</string>
     <string name="ReactionsCount_one">%1$d反应</string>
     <string name="ReactionsCount_other">%1$d 反应</string>
@@ -5200,7 +5200,7 @@
     <string name="PushReactQuiz">%2$s 参加您的测验 %3$s</string>
     <string name="PushReactGame">%2$s 到您的游戏</string>
     <string name="PushReactInvoice">%2$s 到您的发票</string>
-    <string name="PushReactGif">%2$s 到您的 GIF</string>
+    <string name="PushReactGif">%2$s 到您的动图</string>
     <string name="PushChatReactText">%2$s 中的 %3$s 到您的“%4$s”</string>
     <string name="PushChatReactNotext">%3$s 到您在 %2$s 中的消息</string>
     <string name="PushChatReactPhoto">%3$s 到 %2$s 中您的照片</string>
@@ -5217,7 +5217,7 @@
     <string name="PushChatReactQuiz">%3$s 到 %2$s 中的测验 %4$s</string>
     <string name="PushChatReactGame">%3$s 到 %2$s 中的游戏</string>
     <string name="PushChatReactInvoice">%3$s 到您的发票 %2$s</string>
-    <string name="PushChatReactGif">%3$s 到 %2$s 中的 GIF</string>
+    <string name="PushChatReactGif">%3$s 到 %2$s 中的动图</string>
     <string name="PushReactStory">%2$s 你的故事</string>
     <string name="PushReactStoryHidden">对你的故事的新反应</string>
     <string name="PushReactStoryHiddenSender">故事反应</string>
@@ -5225,7 +5225,7 @@
     <string name="AllowBackgroundActivity">允许后台活动</string>
     <string name="AllowBackgroundActivityInfo">这将提高传入通知和 安卫通 呼叫的可靠性。</string>
     <string name="AllowBackgroundActivityInfoOneUIBelowS">这将提高传入通知和 安卫通 呼叫的可靠性。点击设置 -&gt; 电池并打开 ** 允许后台活动**。</string>
-    <string name="AllowBackgroundActivityInfoOneUIAboveS">这将提高传入通知和 安卫通 呼叫的可靠性。请在“设置”&gt;“电池”中选择“**Optimized**”或“**Unrestricted**”。</string>
+    <string name="AllowBackgroundActivityInfoOneUIAboveS">这将提高传入通知和 安卫通 通话的可靠性。请在“设置”&gt;“电池”中选择“**已优化**”或“**不受限制**”。</string>
     <string name="SetNewPassword">设置新密码</string>
     <string name="ReadAllReactions">阅读所有反应</string>
     <string name="ReadAllMentions">阅读所有提及的内容</string>
@@ -5437,8 +5437,8 @@
     <string name="TelegramPremiumSubscribedSubtitle">感谢您订阅 **安卫通高级版**.\n这是现已解锁的内容。</string>
     <string name="LimitReachedFavoriteStickers">%d 贴纸数量已达上限</string>
     <string name="LimitReachedFavoriteStickersSubtitle">一张旧贴纸已被此贴纸取代。您可以将**的限制**增加到%d贴纸</string>
-    <string name="LimitReachedFavoriteGifs">已达到 %d GIF 的限制</string>
-    <string name="LimitReachedFavoriteGifsSubtitle">一张旧的 已被此替换。您可以将 ** 限制 ** 增加到 %d GIF</string>
+    <string name="LimitReachedFavoriteGifs">已达到 %d 张动图的上限</string>
+    <string name="LimitReachedFavoriteGifsSubtitle">一张旧动图已被这张替换。您可以把 **上限** 提高到 %d 张动图。</string>
     <string name="LimitReachedFileSize">文件无法发送，因为它大于 **%1$s**。通过订阅 **安卫通高级版**，您可以将此限制加倍至每个文档 **%2$s**。</string>
     <string name="LimitReachedFileSizePremium">该文档无法发送，因为它大于 **%1$s**。</string>
     <string name="LimitReachedFileSizeLocked">该文档无法发送，因为它大于 **%1$s**。我们正在努力让您将来提高此限制。</string>
@@ -5456,8 +5456,8 @@
     <string name="PinChatsLimitSubtitle">在主聊天列表中固定 %d 聊天</string>
     <string name="PublicLinksLimitTitle">公共链接</string>
     <string name="PublicLinksLimitSubtitle">预留最多 %d andunwei.com/name 链接</string>
-    <string name="SavedGifsLimitTitle">已保存的 GIF</string>
-    <string name="SavedGifsLimitSubtitle">在您最喜爱的 中保存最多 %d GIF</string>
+    <string name="SavedGifsLimitTitle">已保存的动图</string>
+    <string name="SavedGifsLimitSubtitle">在“已保存动图”中最多可保存 %d 张动图。</string>
     <string name="FavoriteStickersLimitTitle">最喜欢的贴纸</string>
     <string name="FavoriteStickersLimitSubtitle">在您最喜欢的贴纸中保存最多 %d 贴纸</string>
     <string name="FoldersLimitTitle">文件夹</string>
@@ -5480,7 +5480,7 @@
     <string name="CaptionsLimitTitle">字幕</string>
     <string name="CaptionsLimitSubtitle">对您的照片和视频使用更长的描述</string>
     <string name="LimitReachedFavoriteStickersSubtitlePremium">一张旧贴纸已被此贴纸取代。</string>
-    <string name="LimitReachedFavoriteGifsSubtitlePremium">一张旧的 GIF 已被此替换。</string>
+    <string name="LimitReachedFavoriteGifsSubtitlePremium">一张旧动图已被这张替换。</string>
     <string name="PremiumStickerTooltip">该套装包含像这样的高级贴纸。</string>
     <string name="ViewAction">看法</string>
     <string name="HideAd">隐藏</string>
@@ -5739,9 +5739,9 @@
     <string name="YouTubeVideoErrorHTML">尝试播放该视频时发生错误。</string>
     <string name="YouTubeVideoErrorNotFound">找不到视频。</string>
     <string name="YouTubeVideoErrorNotAvailableInApp">该视频无法在此应用程序内播放。</string>
-    <string name="YouTubeVideoErrorOpenExternal">在 YouTube 上观看</string>
+    <string name="YouTubeVideoErrorOpenExternal">前往外部视频平台观看</string>
     <string name="AnonymousNumber">匿名号码</string>
-    <string name="AnonymousNumberNotice">该号码不与 SIM 卡绑定，而是在 *片段* 上获取的。</string>
+    <string name="AnonymousNumberNotice">该号码不与手机卡绑定，而是通过 *片段* 获取的。</string>
     <string name="AutoDeleteMessages">自动删除消息</string>
     <string name="SetCustomTime">设置自定义时间</string>
     <string name="GlobalAutoDeleteInfo">如果启用，您发起的聊天中的所有新消息将在发送后的某个时刻自动为每个人删除。您还可以 ** 将此设置应用于您现有的聊天。**</string>
@@ -5879,7 +5879,7 @@
     <string name="SessionsSettingsInfo">查看您登录 安卫通 帐户的设备列表。</string>
     <string name="SendMediaPermissionPhotos">照片</string>
     <string name="SendMediaPermissionVideos">视频</string>
-    <string name="SendMediaPermissionStickersGifs">贴纸和 GIF</string>
+    <string name="SendMediaPermissionStickersGifs">贴纸和动图</string>
     <string name="SendMediaPermissionMusic">音乐</string>
     <string name="SendMediaPermissionFiles">文件</string>
     <string name="SendMediaPermissionVoice">语音留言</string>
@@ -5995,7 +5995,7 @@
     <string name="LiteOptionsThanos">尘埃消散删除效果</string>
     <string name="LiteOptionsCalls">通话动画</string>
     <string name="LiteOptionsAutoplayVideo">自动播放视频</string>
-    <string name="LiteOptionsAutoplayGifs">自动播放 GIF</string>
+    <string name="LiteOptionsAutoplayGifs">自动播放动图</string>
     <string name="LiteOptionsParticles">粒子效果</string>
     <string name="LiteSmoothTransitions">启用平滑过渡</string>
     <string name="LiteSmoothTransitionsInfo">您可以关闭应用不同页面之间的动画过渡效果。</string>
@@ -6182,7 +6182,7 @@
     <string name="BotBalanceTON">东币</string>
     <string name="BotBalanceStars">星星</string>
     <string name="BotChangeSettings">更改机器人设置</string>
-    <string name="BotManageInfo">使用@BotFather来管理这个机器人。</string>
+    <string name="BotManageInfo">使用 @BotFather 管理此机器人。</string>
     <string name="BotSetPublicLinkHeader">设置公共链接</string>
     <string name="BotUsernamesHelp">拖放链接可更改它们在机器人信息页面上的显示顺序。</string>
     <string name="SendWhenOnline">在线时发送</string>
@@ -7569,7 +7569,7 @@
     <string name="BusinessBotPermissionsGiftsWarningText">机器人 **@%s** 将能够管理您的礼物和星星，包括将它们赠送给其他用户。</string>
     <string name="BusinessBotPermissionsUsernamesWarningText">机器人 **@%s** 将能够管理您的用户名，包括将其转移给其他用户。</string>
     <string name="BusinessBotNotSupportedTitle">哎呀</string>
-    <string name="BusinessBotNotSupportedMessage">该机器人尚不支持 **安卫通 Business**。</string>
+    <string name="BusinessBotNotSupportedMessage">该机器人暂不支持 **安卫通商务功能**。</string>
     <string name="BusinessGreet">问候语</string>
     <string name="BusinessGreetInfo">当客户第一次向您发送消息或在一段时间没有活动后向您打招呼。</string>
     <string name="BusinessGreetSend">发送问候语</string>
@@ -8132,7 +8132,7 @@
     <string name="StarsFailed">失败</string>
     <string name="StarsPending">待定</string>
     <string name="ChromeCrashTitle">噢，啪！</string>
-    <string name="ChromeCrashMessage">显示此网页时出现问题。\n\n如果频繁发生，请考虑更新 **Android WebView**。</string>
+    <string name="ChromeCrashMessage">显示此网页时出现了问题。\n\n如果频繁发生，请考虑更新 **安卓系统网页组件**。</string>
     <string name="StoryLinkPremium">订阅 **安卫通高级版** 以添加故事链接。</string>
     <string name="LocationStories_one">%d 这个位置的故事</string>
     <string name="LocationStories_other">%d 此位置的故事</string>
@@ -8347,10 +8347,10 @@
     <string name="BrowserSettingsNoCustomTabsInfo">您可以选择在不离开安卫通的情况下打开外部链接。</string>
     <string name="BrowserSettingsEnableInfo">无需启动外部浏览器即可打开 安卫通 内的链接。</string>
     <string name="BrowserSettingsCacheClear">清除缓存</string>
-    <string name="BrowserSettingsCookiesClear">清除 饼干</string>
+    <string name="BrowserSettingsCookiesClear">清除站点数据</string>
     <string name="BrowserSettingsCacheClearText">您确定要清除浏览器缓存%s吗？</string>
-    <string name="BrowserSettingsCookiesClearText">您确定要清除浏览器 cookie%s吗？\n\n这可能会使您从网站帐户会话中注销。</string>
-    <string name="BrowserSettingsCookiesInfo">从 安卫通 应用内浏览器和小应用程序中删除所有 cookie 和缓存。</string>
+    <string name="BrowserSettingsCookiesClearText">您确定要清除浏览器站点数据%s 吗？\n\n这可能会让您退出网站账号的登录状态。</string>
+    <string name="BrowserSettingsCookiesInfo">从 安卫通 应用内浏览器和小程序中删除所有站点数据和缓存。</string>
     <string name="BrowserSettingsHistoryShow">查看历史记录</string>
     <string name="BrowserSettingsHistoryClear">清除历史记录</string>
     <string name="BrowserSettingsHistoryPages_one">%d 页</string>
@@ -9134,7 +9134,7 @@
     <string name="Gift2Host">安卫通</string>
     <string name="Gift2HostAddress">业主</string>
     <string name="Gift2CantDoTitle">行动已锁定</string>
-    <string name="Gift2CantDoText">将此礼物转移到您在 Fragment 上的 安卫通 帐户以解锁此操作。</string>
+    <string name="Gift2CantDoText">请先将此礼物转移到您的外部平台 安卫通 账户中，以解锁此操作。</string>
     <string name="Gift2OwnerChange">转移</string>
     <string name="Gift2AttributeModel">型号</string>
     <string name="Gift2AttributeBackdrop">背景</string>
@@ -9174,7 +9174,7 @@
     <string name="Gift2ExportTONUpdateRequiredTitle">需要更新</string>
     <string name="Gift2ExportTONUpdateRequiredText">请将您的 安卫通 应用程序更新到最新版本。</string>
     <string name="Gift2ExportTONFragmentTitle">使用片段管理</string>
-    <string name="Gift2ExportTONFragmentText">您可以使用第三方服务 Fragment 将 **%s** 转入您的 TON 账户。之后，您可以使用 安卫通 之外的任何 TON 钱包将其作为 NFT 进行管理。\n\n 您也可以通过 Fragment 将此类 NFT 移回您的 安卫通 账户。</string>
+    <string name="Gift2ExportTONFragmentText">您可以通过第三方平台将 **%s** 转入您的 TON 账户。之后，您可以使用 安卫通 之外的任意 TON 钱包将其作为 NFT 进行管理。\n\n您也可以再通过第三方平台把这类 NFT 转回您的 安卫通 账户。</string>
     <string name="Gift2ExportTONFragmentOpen">打开片段</string>
     <string name="Gift2RarityHint">此类收藏品中只有 %s 具有此属性</string>
     <string name="Gift2Refunded">该礼物被降级，因为已请求退还与该礼物相关的付款，并且款项已退回。</string>
@@ -9192,7 +9192,7 @@
     <string name="Gift2ActionUpgradeOut">%s 可以将这份礼物变成独特的收藏品。</string>
     <string name="Gift2TransferOption">转乘</string>
     <string name="Gift2ViewInProfile">在个人资料中查看</string>
-    <string name="EditorMuteHint">现在声音已静音，因此视频将像 GIF 一样播放和循环。</string>
+    <string name="EditorMuteHint">当前声音已静音，因此视频会像动图一样循环播放。</string>
     <string name="YourProfilePhotoUploading">您的个人资料照片正在上传...</string>
     <string name="YourProfileVideoUploading">您的个人资料视频正在上传...</string>
     <string name="YourProfilePhotoDone">您的个人资料照片现已设置。</string>
@@ -9215,7 +9215,7 @@
     <string name="EditorSetCoverGallery">从图库中选择</string>
     <string name="EditorSetCoverSave">保存封面</string>
     <string name="PremiumAvatarToast">订阅 **安卫通高级版** 可设置高级头像。</string>
-    <string name="ChromecastStarted">开始将媒体流传输到 Chromecast。</string>
+    <string name="ChromecastStarted">已开始将媒体投放到投屏设备。</string>
     <string name="ChromecastStartedTo">开始将媒体流式传输到 %s。</string>
     <string name="CallInviteMembersButton">致电</string>
     <string name="GroupMessagesChargePrice">为消息充星</string>
@@ -9840,7 +9840,7 @@
     <string name="ProfileButtonUnmute">取消静音</string>
     <string name="GiftValue2">价值</string>
     <string name="GiftValue2LearnMore">了解更多</string>
-    <string name="GiftValueAverage">这是过去一个月 安卫通 和 Fragment 上 **%s** 的平均销售价格。</string>
+    <string name="GiftValueAverage">这是过去一个月 安卫通 与第三方平台上 **%s** 的平均成交价格。</string>
     <string name="GiftValueLastFragment">这是 **%s** 最后在 片段上出售的价格。</string>
     <string name="GiftValueLastTelegram">这是 **%s** 最后在 安卫通 上出售的价格。</string>
     <string name="GiftValueInitialSale">首次销售</string>
@@ -9848,7 +9848,7 @@
     <string name="GiftValueLastSale">最后销售</string>
     <string name="GiftValueLastPrice">最后价格</string>
     <string name="GiftValueMinPrice">最低价格</string>
-    <string name="GiftValueMinPriceInfo">**%1$s** 是 安卫通 和 Fragment 上列出的 **%2$s** 礼品的底价。</string>
+    <string name="GiftValueMinPriceInfo">**%1$s** 是 安卫通 与第三方平台上列出的 **%2$s** 礼品底价。</string>
     <string name="GiftValueAveragePrice">平均价格</string>
     <string name="GiftValueAveragePriceInfo">**%1$s** 是过去一个月 **%2$s** 礼品的平均销售价格。</string>
     <string name="GiftValueOnSaleTelegram">安卫通 上出售 &gt;</string>

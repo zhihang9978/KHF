@@ -519,6 +519,7 @@ public class LocaleController {
     private ArrayList<LocaleInfo> otherLanguages = new ArrayList<>();
     private static final String DEFAULT_BRAND_LANGUAGE_KEY = "zh_cn";
     private static final String DEFAULT_BRAND_LANGUAGE_FALLBACK_KEY = "zh_cn";
+    private static final String BRAND_BUILTIN_LANGUAGE_PREF = "brand_builtin_lang_initialized";
 
     private static volatile LocaleController Instance = null;
     public static LocaleController getInstance() {
@@ -686,7 +687,20 @@ public class LocaleController {
 
         try {
             SharedPreferences preferences = MessagesController.getGlobalMainSettings();
+            boolean brandBuiltinLanguageInitialized = preferences.getBoolean(BRAND_BUILTIN_LANGUAGE_PREF, false);
             String lang = preferences.getString("language", null);
+            if (!brandBuiltinLanguageInitialized) {
+                String normalized = lang == null ? null : lang.replace('-', '_').toLowerCase();
+                if (normalized == null || "en".equals(normalized) || "en_us".equals(normalized) || "en_uk".equals(normalized)) {
+                    lang = DEFAULT_BRAND_LANGUAGE_KEY;
+                    preferences.edit()
+                            .putString("language", DEFAULT_BRAND_LANGUAGE_KEY)
+                            .putBoolean(BRAND_BUILTIN_LANGUAGE_PREF, true)
+                            .commit();
+                } else {
+                    preferences.edit().putBoolean(BRAND_BUILTIN_LANGUAGE_PREF, true).commit();
+                }
+            }
             if (lang != null) {
                 currentInfo = getLanguageFromDict(lang);
                 if (currentInfo != null) {
@@ -3167,6 +3181,10 @@ public class LocaleController {
                         localeInfo.pathToFile = "remote";
                         localeInfo.serverIndex = a;
 
+                        if (DEFAULT_BRAND_LANGUAGE_KEY.equals(localeInfo.getKey()) || DEFAULT_BRAND_LANGUAGE_FALLBACK_KEY.equals(localeInfo.getKey())) {
+                            continue;
+                        }
+
                         LocaleInfo existing = getLanguageFromDict(localeInfo.getKey());
                         if (existing == null) {
                             languages.add(localeInfo);
@@ -3201,7 +3219,8 @@ public class LocaleController {
                     }
                     saveOtherLanguages();
                     NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.suggestedLangpack);
-                    if (applyCurrent) {
+                    if (applyCurrent && !(currentLocaleInfo != null && currentLocaleInfo.isBuiltIn() &&
+                            (DEFAULT_BRAND_LANGUAGE_KEY.equals(currentLocaleInfo.getKey()) || DEFAULT_BRAND_LANGUAGE_FALLBACK_KEY.equals(currentLocaleInfo.getKey())))) {
                         applyLanguage(currentLocaleInfo, true, false, currentAccount);
                     }
                 });
@@ -4174,6 +4193,12 @@ public class LocaleController {
 
     // patch to force reinstalling of langpack in case some strings are missing after 9.0
     private boolean shouldReinstallLangpack(String lng) {
+        if (lng != null) {
+            String normalized = lng.replace('-', '_').toLowerCase();
+            if (DEFAULT_BRAND_LANGUAGE_KEY.equals(normalized) || DEFAULT_BRAND_LANGUAGE_FALLBACK_KEY.equals(normalized)) {
+                return false;
+            }
+        }
         int mustBeCount = MessagesController.getInstance(UserConfig.selectedAccount).checkResetLangpack;
         if (mustBeCount <= 0) {
             return false;
