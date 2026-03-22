@@ -74,6 +74,10 @@ public class VoIPHelper {
 	private static final int VOIP_SUPPORT_ID = 4244000;
 
 	public static void startCall(TLRPC.User user, boolean videoCall, boolean canVideoCall, final Activity activity, TLRPC.UserFull userFull, AccountInstance accountInstance) {
+		startCall(user, videoCall, canVideoCall, activity, userFull, accountInstance, 0);
+	}
+
+	public static void startCall(TLRPC.User user, boolean videoCall, boolean canVideoCall, final Activity activity, TLRPC.UserFull userFull, AccountInstance accountInstance, int secretChatId) {
 		if (accountInstance == null ? MessagesController.getInstance(UserConfig.selectedAccount).isFrozen() : accountInstance.getMessagesController().isFrozen()) {
 			AccountFrozenAlert.show(accountInstance == null ? UserConfig.selectedAccount : accountInstance.getCurrentAccount());
 			return;
@@ -112,12 +116,12 @@ public class VoIPHelper {
 				permissions.add(Manifest.permission.CAMERA);
 			}
 			if (permissions.isEmpty()) {
-				initiateCall(user, null, null, videoCall, canVideoCall, false, null, activity, null, accountInstance);
+				initiateCall(user, null, null, videoCall, canVideoCall, false, null, activity, null, accountInstance, secretChatId);
 			} else {
 				activity.requestPermissions(permissions.toArray(new String[0]), videoCall ? 102 : 101);
 			}
 		} else {
-			initiateCall(user, null, null, videoCall, canVideoCall, false, null, activity, null, accountInstance);
+			initiateCall(user, null, null, videoCall, canVideoCall, false, null, activity, null, accountInstance, secretChatId);
 		}
 	}
 
@@ -149,10 +153,10 @@ public class VoIPHelper {
 			return;
 		}
 
-		initiateCall(null, chat, hash, false, false, createCall, checkJoiner, activity, fragment, accountInstance);
+		initiateCall(null, chat, hash, false, false, createCall, checkJoiner, activity, fragment, accountInstance, 0);
 	}
 
-	private static void initiateCall(TLRPC.User user, TLRPC.Chat chat, String hash, boolean videoCall, boolean canVideoCall, boolean createCall, Boolean checkJoiner, final Activity activity, BaseFragment fragment, AccountInstance accountInstance) {
+	private static void initiateCall(TLRPC.User user, TLRPC.Chat chat, String hash, boolean videoCall, boolean canVideoCall, boolean createCall, Boolean checkJoiner, final Activity activity, BaseFragment fragment, AccountInstance accountInstance, int secretChatId) {
 		if (activity == null || user == null && chat == null) {
 			return;
 		}
@@ -219,10 +223,10 @@ public class VoIPHelper {
 							if (VoIPService.getSharedInstance() != null) {
 								VoIPService.getSharedInstance().hangUp(() -> {
 									lastCallTime = 0;
-									doInitiateCall(user, chat, hash, null, false, videoCall, canVideoCall, createCall, activity, fragment, accountInstance, true, true);
+									doInitiateCall(user, chat, hash, null, false, videoCall, canVideoCall, createCall, activity, fragment, accountInstance, true, true, false, secretChatId);
 								});
 							} else {
-								doInitiateCall(user, chat, hash, null, false, videoCall, canVideoCall, createCall, activity, fragment, accountInstance, true, true);
+								doInitiateCall(user, chat, hash, null, false, videoCall, canVideoCall, createCall, activity, fragment, accountInstance, true, true, false, secretChatId);
 							}
 						})
 						.setNegativeButton(LocaleController.getString(R.string.Cancel), null)
@@ -238,12 +242,12 @@ public class VoIPHelper {
 				}
 			}
 		} else if (VoIPService.callIShouldHavePutIntoIntent == null) {
-			doInitiateCall(user, chat, hash, null, false, videoCall, canVideoCall, createCall, activity, fragment, accountInstance, checkJoiner != null ? checkJoiner : true, true);
+			doInitiateCall(user, chat, hash, null, false, videoCall, canVideoCall, createCall, activity, fragment, accountInstance, checkJoiner != null ? checkJoiner : true, true, false, secretChatId);
 		}
 	}
 
 	private static void doInitiateCall(TLRPC.User user, TLRPC.Chat chat, String hash, TLRPC.InputPeer peer, boolean hasFewPeers, boolean videoCall, boolean canVideoCall, boolean createCall, Activity activity, BaseFragment fragment, AccountInstance accountInstance, boolean checkJoiner, boolean checkAnonymous) {
-		doInitiateCall(user, chat, hash, peer, hasFewPeers, videoCall, canVideoCall, createCall, activity, fragment, accountInstance,checkJoiner, checkAnonymous, false);
+		doInitiateCall(user, chat, hash, peer, hasFewPeers, videoCall, canVideoCall, createCall, activity, fragment, accountInstance,checkJoiner, checkAnonymous, false, 0);
 	}
 
 	public static void joinConference(Activity activity, int account, TLRPC.InputGroupCall inputGroupCall, boolean videoCall, TLRPC.GroupCall preloadedCall) {
@@ -298,7 +302,7 @@ public class VoIPHelper {
 		}
 	}
 
-	private static void doInitiateCall(TLRPC.User user, TLRPC.Chat chat, String hash, TLRPC.InputPeer peer, boolean hasFewPeers, boolean videoCall, boolean canVideoCall, boolean createCall, Activity activity, BaseFragment fragment, AccountInstance accountInstance, boolean checkJoiner, boolean checkAnonymous, boolean isRtmpStream) {
+	private static void doInitiateCall(TLRPC.User user, TLRPC.Chat chat, String hash, TLRPC.InputPeer peer, boolean hasFewPeers, boolean videoCall, boolean canVideoCall, boolean createCall, Activity activity, BaseFragment fragment, AccountInstance accountInstance, boolean checkJoiner, boolean checkAnonymous, boolean isRtmpStream, int secretChatId) {
 		if (activity == null || user == null && chat == null) {
 			return;
 		}
@@ -315,14 +319,14 @@ public class VoIPHelper {
 						JoinCallByUrlAlert alert = new JoinCallByUrlAlert(activity, chat) {
 							@Override
 							protected void onJoin() {
-								doInitiateCall(user, chat, hash, inputPeer, true, videoCall, canVideoCall, false, activity, fragment, accountInstance, false, false);
+								doInitiateCall(user, chat, hash, inputPeer, true, videoCall, canVideoCall, false, activity, fragment, accountInstance, false, false, false, secretChatId);
 							}
 						};
 						if (fragment != null) {
 							fragment.showDialog(alert);
 						}
 					} else {
-						doInitiateCall(user, chat, hash, inputPeer, !param, videoCall, canVideoCall, false, activity, fragment, accountInstance, false, false);
+						doInitiateCall(user, chat, hash, inputPeer, !param, videoCall, canVideoCall, false, activity, fragment, accountInstance, false, false, false, secretChatId);
 					}
 				});
 				return;
@@ -336,14 +340,14 @@ public class VoIPHelper {
 					JoinCallByUrlAlert alert = new JoinCallByUrlAlert(activity, chat) {
 						@Override
 						protected void onJoin() {
-							doInitiateCall(user, chat, hash, selectedPeer, false, videoCall, canVideoCall, createCall, activity, fragment, accountInstance, false, true, rtmp);
+							doInitiateCall(user, chat, hash, selectedPeer, false, videoCall, canVideoCall, createCall, activity, fragment, accountInstance, false, true, rtmp, secretChatId);
 						}
 					};
 					if (fragment != null) {
 						fragment.showDialog(alert);
 					}
 				} else {
-					doInitiateCall(user, chat, hash, selectedPeer, hasFew, videoCall, canVideoCall, createCall, activity, fragment, accountInstance, false, true, rtmp);
+					doInitiateCall(user, chat, hash, selectedPeer, hasFew, videoCall, canVideoCall, createCall, activity, fragment, accountInstance, false, true, rtmp, secretChatId);
 				}
 			});
 			return;
@@ -352,7 +356,7 @@ public class VoIPHelper {
 			new AlertDialog.Builder(activity)
 					.setTitle(ChatObject.isChannelOrGiga(chat) ? LocaleController.getString(R.string.VoipChannelVoiceChat) : LocaleController.getString(R.string.VoipGroupVoiceChat))
 					.setMessage(ChatObject.isChannelOrGiga(chat) ? LocaleController.getString(R.string.VoipChannelJoinAnonymouseAlert) : LocaleController.getString(R.string.VoipGroupJoinAnonymouseAlert))
-					.setPositiveButton(LocaleController.getString(R.string.VoipChatJoin), (dialog, which) -> doInitiateCall(user, chat, hash, peer, false, videoCall, canVideoCall, createCall, activity, fragment, accountInstance, false, false))
+					.setPositiveButton(LocaleController.getString(R.string.VoipChatJoin), (dialog, which) -> doInitiateCall(user, chat, hash, peer, false, videoCall, canVideoCall, createCall, activity, fragment, accountInstance, false, false, false, secretChatId))
 					.setNegativeButton(LocaleController.getString(R.string.Cancel), null)
 					.show();
 			return;
@@ -389,6 +393,9 @@ public class VoIPHelper {
 		Intent intent = new Intent(activity, VoIPService.class);
 		if (user != null) {
 			intent.putExtra("user_id", user.id);
+			if (secretChatId != 0) {
+				intent.putExtra("secret_chat_id", secretChatId);
+			}
 		} else {
 			intent.putExtra("chat_id", chat.id);
 			intent.putExtra("createGroupCall", createCall);

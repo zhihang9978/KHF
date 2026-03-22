@@ -3419,6 +3419,7 @@ void ConnectionsManager::updateDcSettings(uint32_t dcNum, bool workaround, bool 
 }
 
 void ConnectionsManager::moveToDatacenter(uint32_t datacenterId) {
+    datacenterId = DEFAULT_DATACENTER_ID;
     if (movingToDatacenterId == datacenterId) {
         return;
     }

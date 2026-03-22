@@ -161,6 +161,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -215,6 +216,7 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 	private static VoIPService sharedInstance;
 	private static Runnable setModeRunnable;
 	private static final Object sync = new Object();
+	private static final ConcurrentHashMap<Long, Integer> secretCallChats = new ConcurrentHashMap<>();
 	private NetworkInfo lastNetInfo;
 	private int currentState = 0;
 	private boolean wasConnected;
@@ -353,6 +355,7 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 
 	private TLRPC.User user;
 	private int callReqId;
+	private int secretChatId;
 
 	private byte[] g_a;
 	private byte[] a_or_b;
@@ -769,6 +772,7 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 		classGuid = ConnectionsManager.generateClassGuid();
 		long userID = intent.getLongExtra("user_id", 0);
 		long chatID = intent.getLongExtra("chat_id", 0);
+		secretChatId = intent.getIntExtra("secret_chat_id", 0);
 		createGroupCall = intent.getBooleanExtra("createGroupCall", false);
 		byte[] joinConferenceBytes = intent.getByteArrayExtra("joinConference");
 		if (joinConferenceBytes != null) {
@@ -961,6 +965,47 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 		return START_NOT_STICKY;
 	}
 
+	private void processCallUpdates(TLRPC.Updates updates) {
+		if (updates == null) {
+			return;
+		}
+		routePhoneCallUpdatesToSecretDialog(updates);
+		MessagesController.getInstance(currentAccount).processUpdates(updates, false);
+	}
+
+	private void rememberSecretCallChat(long callId) {
+		if (secretChatId != 0 && callId != 0) {
+			secretCallChats.put(callId, secretChatId);
+		}
+	}
+
+	public static long getSecretDialogIdForCall(long callId) {
+		Integer mappedSecretChatId = secretCallChats.get(callId);
+		if (mappedSecretChatId == null || mappedSecretChatId == 0) {
+			return 0;
+		}
+		return DialogObject.makeEncryptedDialogId(mappedSecretChatId);
+	}
+
+	private void routePhoneCallUpdatesToSecretDialog(TLRPC.Updates updates) {
+		if (secretChatId == 0 || updates.updates == null) {
+			return;
+		}
+		long secretDialogId = DialogObject.makeEncryptedDialogId(secretChatId);
+		for (int i = 0, count = updates.updates.size(); i < count; i++) {
+			TLRPC.Update update = updates.updates.get(i);
+			TLRPC.Message message = null;
+			if (update instanceof TLRPC.TL_updateNewMessage) {
+				message = ((TLRPC.TL_updateNewMessage) update).message;
+			} else if (update instanceof TLRPC.TL_updateNewScheduledMessage) {
+				message = ((TLRPC.TL_updateNewScheduledMessage) update).message;
+			}
+			if (message != null && message.action instanceof TLRPC.TL_messageActionPhoneCall) {
+				message.dialog_id = secretDialogId;
+			}
+		}
+	}
+
 	public static boolean hasRtmpStream() {
 		return getSharedInstance() != null && getSharedInstance().groupCall != null && getSharedInstance().groupCall.call.rtmp_stream;
 	}
@@ -1116,6 +1161,7 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 				ConnectionsManager.getInstance(currentAccount).sendRequest(reqCall, (response12, error12) -> AndroidUtilities.runOnUIThread(() -> {
 					if (error12 == null) {
 						privateCall = ((TL_phone.TL_phone_phoneCall) response12).phone_call;
+						rememberSecretCallChat(privateCall.id);
 						a_or_b = salt1;
 						dispatchStateChanged(STATE_WAITING);
 						if (endCallAfterRequest) {
@@ -4457,7 +4503,7 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 			} else {
 				if (response instanceof TLRPC.TL_updates) {
 					TLRPC.TL_updates updates = (TLRPC.TL_updates) response;
-					MessagesController.getInstance(currentAccount).processUpdates(updates, false);
+					processCallUpdates(updates);
 				}
 				if (BuildVars.LOGS_ENABLED) {
 					FileLog.d("phone.discardCall " + response);
@@ -4508,24 +4554,58 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 			FileLog.d("starting ringing for call " + privateCall.id);
 		}
 		dispatchStateChanged(STATE_WAITING_INCOMING);
+		boolean showIncomingUi = shouldShowIncomingCallFragment();
+		if (showIncomingUi) {
+			startRingtoneAndVibration();
+			showIncomingCallFragment();
+		}
 		if (!notificationsDisabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			showIncomingNotification(ContactsController.formatName(user.first_name, user.last_name), user, privateCall.video, 0);
 			if (BuildVars.LOGS_ENABLED) {
 				FileLog.d("Showing incoming call notification");
 			}
 		} else {
-			startRingtoneAndVibration(user.id);
-			if (BuildVars.LOGS_ENABLED) {
-				FileLog.d("Starting incall activity for incoming call");
-			}
-			try {
-				PendingIntent.getActivity(VoIPService.this, 12345, new Intent(VoIPService.this, LaunchActivity.class).setAction("voip"), PendingIntent.FLAG_MUTABLE).send();
-			} catch (Exception x) {
+			if (!showIncomingUi) {
+				startRingtoneAndVibration(user.id);
 				if (BuildVars.LOGS_ENABLED) {
-					FileLog.e("Error starting incall activity", x);
+					FileLog.d("Starting incall activity for incoming call");
+				}
+				try {
+					PendingIntent.getActivity(VoIPService.this, 12345, new Intent(VoIPService.this, LaunchActivity.class).setAction("voip"), PendingIntent.FLAG_MUTABLE).send();
+				} catch (Exception x) {
+					if (BuildVars.LOGS_ENABLED) {
+						FileLog.e("Error starting incall activity", x);
+					}
 				}
 			}
 		}
+	}
+
+	private boolean shouldShowIncomingCallFragment() {
+		Activity activity = LaunchActivity.instance;
+		if (activity == null) {
+			return false;
+		}
+		if (activity.isFinishing()) {
+			return false;
+		}
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && activity.isDestroyed()) {
+			return false;
+		}
+		return !ApplicationLoader.mainInterfacePaused && !ApplicationLoader.mainInterfaceStopped;
+	}
+
+	private void showIncomingCallFragment() {
+		AndroidUtilities.runOnUIThread(() -> {
+			Activity activity = LaunchActivity.instance;
+			if (activity == null || activity.isFinishing()) {
+				return;
+			}
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && activity.isDestroyed()) {
+				return;
+			}
+			VoIPFragment.show(activity, currentAccount);
+		});
 	}
 
 	public void startRingtoneAndVibration() {

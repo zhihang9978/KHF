@@ -1261,7 +1261,7 @@
     <string name="ApplyThemeFile">Apply theme file</string>
     <string name="UnsupportedAttachment">Unsupported attachment</string>
     <string name="SetTimer">Set self-destruct timer</string>
-    <string name="ServiceNotifications">Service notifications</string>
+    <string name="ServiceNotifications">服务通知</string>
     <string name="VerifyCodesNotifications">Verification Codes</string>
     <string name="GettingLinkInfo">Getting Link Info...</string>
     <string name="OpenInBrowser">OPEN IN...</string>
@@ -4071,13 +4071,13 @@
     <string name="Page4Title">Secure</string>
     <string name="Page5Title">Powerful</string>
     <string name="Page6Title">Cloud-Based</string>
-    <string name="Page1Message">The world\'s **fastest** messaging app.\nIt is **free** and **secure**.</string>
+    <string name="Page1Message">更快、更安全的即时通讯工具。\n**免费**使用，并以**安全**为先。</string>
     <string name="Page2Message">**安卫通** delivers messages faster than\nany other application.</string>
     <string name="Page3Message">**安卫通** provides free unlimited cloud storage for chats and media.</string>
     <string name="Page4Message">**安卫通** keeps your messages safe\nfrom hacker attacks.</string>
     <string name="Page5Message">**安卫通** has no limits on\nthe size of your media and chats.</string>
     <string name="Page6Message">**安卫通** lets you access your messages\nfrom multiple devices.</string>
-    <string name="StartMessaging">Start Messaging</string>
+    <string name="StartMessaging">开始聊天</string>
     <!-- VoIP -->
     <string name="AccountSettings">Account Settings</string>
     <string name="VoipUseLessData">Use less data for calls</string>

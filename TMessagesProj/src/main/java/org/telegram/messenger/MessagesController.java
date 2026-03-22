@@ -5766,25 +5766,78 @@ public class MessagesController extends BaseController implements NotificationCe
         });
     }
 
-    public void addSupportUser() {
-        TLRPC.TL_userForeign_old2 user = new TLRPC.TL_userForeign_old2();
-        user.phone = "333";
-        user.id = 333000;
-        user.first_name = "Teamgram";
-        user.last_name = "";
-        user.status = null;
-        user.photo = new TLRPC.TL_userProfilePhotoEmpty();
-        putUser(user, true);
+        public void addSupportUser() {
+        ensureSupportUser(333000, "333", "\u5b89\u536b\u901a", "", null, false, true);
+        ensureSupportUser(777000, "42777", "\u5b89\u536b\u901a\u5b98\u65b9\u901a\u77e5", "", "anweitong_official", true, false);
+    }
 
-        user = new TLRPC.TL_userForeign_old2();
-        user.phone = "42777";
-        user.id = 777000;
-        user.verified = true;
-        user.first_name = "Teamgram";
-        user.last_name = "Notifications";
+    private void ensureSupportUser(long userId, String phone, String firstName, String lastName, String username, boolean verified, boolean allowEmptyPhotoFallback) {
+        TLRPC.User existing = getUser(userId);
+        if (existing != null) {
+            if (TextUtils.isEmpty(existing.phone)) {
+                existing.phone = phone;
+            }
+            if (shouldReplaceSupportFirstName(userId, existing.first_name)) {
+                existing.first_name = firstName;
+            }
+            if (shouldReplaceSupportLastName(existing.last_name)) {
+                existing.last_name = lastName;
+            }
+            if (!TextUtils.isEmpty(username) && shouldReplaceSupportUsername(existing.username)) {
+                existing.username = username;
+                existing.flags |= 8;
+            }
+            if (verified) {
+                existing.verified = true;
+            }
+            if (!allowEmptyPhotoFallback && existing.photo instanceof TLRPC.TL_userProfilePhotoEmpty) {
+                existing.photo = null;
+                existing.flags &= ~32;
+            } else if (allowEmptyPhotoFallback && existing.photo == null) {
+                existing.photo = new TLRPC.TL_userProfilePhotoEmpty();
+                existing.flags |= 32;
+            }
+            putUser(existing, false, true);
+            return;
+        }
+
+        TLRPC.TL_userForeign_old2 user = new TLRPC.TL_userForeign_old2();
+        user.phone = phone;
+        user.id = userId;
+        user.first_name = firstName;
+        user.last_name = lastName;
         user.status = null;
-        user.photo = new TLRPC.TL_userProfilePhotoEmpty();
+        user.support = true;
+        if (verified) {
+            user.verified = true;
+        }
+        if (!TextUtils.isEmpty(username)) {
+            user.username = username;
+            user.flags |= 8;
+        }
+        if (allowEmptyPhotoFallback) {
+            user.photo = new TLRPC.TL_userProfilePhotoEmpty();
+            user.flags |= 32;
+        }
         putUser(user, true);
+    }
+
+    private boolean shouldReplaceSupportFirstName(long userId, String current) {
+        if (TextUtils.isEmpty(current)) {
+            return true;
+        }
+        if ("Teamgram".equalsIgnoreCase(current)) {
+            return true;
+        }
+        return userId == 777000 && "\u5b89\u536b\u901a".equals(current);
+    }
+
+    private boolean shouldReplaceSupportLastName(String current) {
+        return TextUtils.isEmpty(current) || "Notifications".equalsIgnoreCase(current);
+    }
+
+    private boolean shouldReplaceSupportUsername(String current) {
+        return TextUtils.isEmpty(current) || "teamgram".equalsIgnoreCase(current);
     }
 
     public TLRPC.InputUser getInputUser(TLRPC.User user) {
@@ -6698,6 +6751,16 @@ public class MessagesController extends BaseController implements NotificationCe
         return putUser(user, fromCache, false);
     }
 
+    private void preserveUserPhotoIfNewUserIsWeaker(TLRPC.User oldUser, TLRPC.User newUser) {
+        if (oldUser == null || newUser == null) {
+            return;
+        }
+        if (!UserObject.hasPhoto(newUser) && UserObject.hasPhoto(oldUser)) {
+            newUser.photo = oldUser.photo;
+            newUser.flags |= 32;
+        }
+    }
+
     public boolean putUser(TLRPC.User user, boolean fromCache, boolean force) {
         if (user == null) {
             return false;
@@ -6757,6 +6820,7 @@ public class MessagesController extends BaseController implements NotificationCe
                 users.put(user.id, user);
             }
         } else {
+            preserveUserPhotoIfNewUserIsWeaker(oldUser, user);
             if (!fromCache) {
                 users.put(user.id, user);
                 if (user.id == getUserConfig().getClientUserId()) {
@@ -16844,6 +16908,16 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     // must be run from Utilities.stageQueue
+    private void maybeRoutePhoneCallMessageToSecretDialog(TLRPC.Message message) {
+        if (message == null || !(message.action instanceof TLRPC.TL_messageActionPhoneCall)) {
+            return;
+        }
+        long secretDialogId = VoIPService.getSecretDialogIdForCall(((TLRPC.TL_messageActionPhoneCall) message.action).call_id);
+        if (secretDialogId != 0) {
+            message.dialog_id = secretDialogId;
+        }
+    }
+
     public void processUpdates(final TLRPC.Updates updates, boolean fromQueue) {
         ArrayList<Long> needGetChannelsDiff = null;
         boolean needGetDiff = false;
@@ -16979,6 +17053,7 @@ public class MessagesController extends BaseController implements NotificationCe
                     message.reply_to = updates.reply_to;
                     message.ttl_period = updates.ttl_period;
                     message.media = new TLRPC.TL_messageMediaEmpty();
+                    maybeRoutePhoneCallMessageToSecretDialog(message);
 
                     ConcurrentHashMap<Long, Integer> read_max = message.out ? dialogs_read_outbox_max : dialogs_read_inbox_max;
                     Integer value = read_max.get(message.dialog_id);
@@ -17570,6 +17645,7 @@ public class MessagesController extends BaseController implements NotificationCe
                 }
 
                 ImageLoader.saveMessageThumbs(message);
+                maybeRoutePhoneCallMessageToSecretDialog(message);
 
                 MessageObject.getDialogId(message);
                 if (baseUpdate instanceof TLRPC.TL_updateNewChannelMessage && message.reply_to != null && !(message.action instanceof TLRPC.TL_messageActionPinMessage)) {

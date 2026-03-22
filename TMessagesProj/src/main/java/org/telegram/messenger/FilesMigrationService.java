@@ -97,8 +97,8 @@ public class FilesMigrationService extends Service {
         }
 
         File newPath = ApplicationLoader.applicationContext.getExternalFilesDir(null);
-        File telegramPath = new File(newPath, "Teamgram");
-        File oldPath = new File(path, "Teamgram");
+        File telegramPath = new File(newPath, "AnWeiTong");
+        File oldPath = new File(path, "AnWeiTong");
 
         totalFilesCount = getFilesCount(oldPath);
 

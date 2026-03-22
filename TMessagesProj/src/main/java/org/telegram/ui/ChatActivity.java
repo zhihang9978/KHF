@@ -3938,7 +3938,8 @@ public class ChatActivity extends BaseFragment implements
                     }
                 } else if (id == call || id == video_call) {
                     if (currentUser != null && getParentActivity() != null) {
-                        VoIPHelper.startCall(currentUser, id == video_call, userInfo != null && userInfo.video_calls_available, getParentActivity(), getMessagesController().getUserFull(currentUser.id), getAccountInstance());
+                        int secretChatId = currentEncryptedChat != null ? currentEncryptedChat.id : 0;
+                        VoIPHelper.startCall(currentUser, id == video_call, userInfo != null && userInfo.video_calls_available, getParentActivity(), getMessagesController().getUserFull(currentUser.id), getAccountInstance(), secretChatId);
                     }
                 } else if (id == text_bold) {
                     if (chatActivityEnterView != null && chatActivityEnterView.getEditField() != null) {
