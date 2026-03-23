@@ -289,6 +289,8 @@ public class ApplicationLoader extends Application {
 
         super.onCreate();
 
+        ReleaseSecurity.enforceReleaseGuards(this);
+
         if (BuildVars.LOGS_ENABLED) {
             FileLog.d("app start time = " + (startTime = SystemClock.elapsedRealtime()));
             try {
@@ -322,7 +324,13 @@ public class ApplicationLoader extends Application {
         try {
             ConnectionsManager.native_setJava(false);
         } catch (UnsatisfiedLinkError error) {
-            throw new RuntimeException("can't load native libraries " +  Build.CPU_ABI + " lookup folder " + NativeLoader.getAbiFolder());
+            NativeLoader.resetLocalLibCache(ApplicationLoader.applicationContext);
+            NativeLoader.initNativeLibs(ApplicationLoader.applicationContext);
+            try {
+                ConnectionsManager.native_setJava(false);
+            } catch (UnsatisfiedLinkError retryError) {
+                throw new RuntimeException("can't load native libraries " + Build.CPU_ABI + " lookup folder " + NativeLoader.getAbiFolder() + " details=" + NativeLoader.log, retryError);
+            }
         }
         new ForegroundDetector(this) {
             @Override

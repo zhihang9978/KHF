@@ -13142,7 +13142,8 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             TLRPC.TL_attachMenuBots menuBots = MediaDataController.getInstance(UserConfig.selectedAccount).getAttachMenuBots();
             if (launchActivity != null && menuBots != null && menuBots.bots != null && !menuBots.bots.isEmpty()) {
                 for (TLRPC.TL_attachMenuBot attachMenuBot : menuBots.bots) {
-                    if (attachMenuBot.show_in_side_menu) {
+                    // Hide the legacy Teamgram side-menu bot entry from the dialogs popup.
+                    if (attachMenuBot.show_in_side_menu && !("teamgram".equalsIgnoreCase(attachMenuBot.short_name))) {
                         io.addBot(attachMenuBot, () -> {
                             if (attachMenuBot.inactive || attachMenuBot.side_menu_disclaimer_needed) {
                                 WebAppDisclaimerAlert.show(getContext(), (allowSendMessage) -> {

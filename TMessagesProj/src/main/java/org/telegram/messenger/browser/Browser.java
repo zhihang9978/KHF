@@ -236,7 +236,6 @@ public class Browser {
         return (
             isTelegraphUrl(url, false, true) ||
             url.matches("^(https://)?andunwei\\.com/iv\\??(/.*|$)") || // andunwei.com/iv?
-            url.matches("^(https://)?teamgram\\.net/(blog|tour)(/.*|$)") || // telegram.org/blog, telegram.org/tour
             url.matches("^(https://)?fragment\\.com(/.*|$)") // fragment.com
         );
     }
@@ -723,7 +722,7 @@ public class Browser {
                 }
                 return true;
             }
-        } else if ("andunwei.com".equals(host) || "teamgram.me".equals(host)) {
+        } else if ("andunwei.com".equals(host)) {
             String path = uri.getPath();
             if (path != null && path.length() > 1) {
                 if (all) {

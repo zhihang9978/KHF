@@ -43,10 +43,24 @@ public class BuildVars {
     // works only on official app ids, disable on your forks
     public static boolean SUPPORTS_PASSKEYS = false;
 
+    public static boolean isLogsAllowedInBuild() {
+        return DEBUG_VERSION || DEBUG_PRIVATE_VERSION;
+    }
+
+    public static void setLogsEnabled(boolean enabled) {
+        LOGS_ENABLED = isLogsAllowedInBuild() && enabled;
+        if (ApplicationLoader.applicationContext != null) {
+            ApplicationLoader.applicationContext.getSharedPreferences("systemConfig", Context.MODE_PRIVATE)
+                    .edit()
+                    .putBoolean("logsEnabled", LOGS_ENABLED)
+                    .commit();
+        }
+    }
+
     static {
         if (ApplicationLoader.applicationContext != null) {
             SharedPreferences sharedPreferences = ApplicationLoader.applicationContext.getSharedPreferences("systemConfig", Context.MODE_PRIVATE);
-            LOGS_ENABLED = DEBUG_VERSION || sharedPreferences.getBoolean("logsEnabled", DEBUG_VERSION);
+            LOGS_ENABLED = isLogsAllowedInBuild() && sharedPreferences.getBoolean("logsEnabled", DEBUG_VERSION);
             if (LOGS_ENABLED) {
                 final Thread.UncaughtExceptionHandler pastHandler = Thread.getDefaultUncaughtExceptionHandler();
                 Thread.setDefaultUncaughtExceptionHandler((thread, exception) -> {
