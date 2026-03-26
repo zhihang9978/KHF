@@ -92,6 +92,7 @@ enum class GroupConnectionMode {
 struct GroupNetworkState {
     bool isConnected = false;
     bool isTransitioningFromBroadcastToRtc = false;
+    GroupConnectionMode connectionMode = GroupConnectionMode::GroupConnectionModeRtc;
 };
 
 enum class VideoContentType {
@@ -171,8 +172,8 @@ struct GroupInstanceDescriptor {
     std::shared_ptr<VideoCaptureInterface> videoCapture; // deprecated
     std::function<webrtc::scoped_refptr<webrtc::VideoTrackSourceInterface>()> getVideoSource;
     std::function<std::shared_ptr<BroadcastPartTask>(std::function<void(int64_t)>)> requestCurrentTime;
-    std::function<std::shared_ptr<BroadcastPartTask>(std::shared_ptr<PlatformContext>, int64_t, int64_t, std::function<void(BroadcastPart &&)>)> requestAudioBroadcastPart;
-    std::function<std::shared_ptr<BroadcastPartTask>(std::shared_ptr<PlatformContext>, int64_t, int64_t, int32_t, VideoChannelDescription::Quality, std::function<void(BroadcastPart &&)>)> requestVideoBroadcastPart;
+    std::function<std::shared_ptr<BroadcastPartTask>(int64_t, int64_t, std::function<void(BroadcastPart &&)>)> requestAudioBroadcastPart;
+    std::function<std::shared_ptr<BroadcastPartTask>(int64_t, int64_t, int32_t, VideoChannelDescription::Quality, std::function<void(BroadcastPart &&)>)> requestVideoBroadcastPart;
     int outgoingAudioBitrateKbit{32};
     bool disableOutgoingAudioProcessing{false};
     bool disableAudioInput{false};
@@ -185,8 +186,6 @@ struct GroupInstanceDescriptor {
     std::function<void(bool)> onMutedSpeechActivityDetected;
     std::function<std::vector<uint8_t>(std::vector<uint8_t> const &, int64_t, bool, int32_t)> e2eEncryptDecrypt;
     bool isConference{false};
-
-    std::shared_ptr<PlatformContext> platformContext;
 };
 
 template <typename T>

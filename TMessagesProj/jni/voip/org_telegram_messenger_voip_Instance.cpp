@@ -318,7 +318,7 @@ DataSaving parseDataSaving(JNIEnv *env, jint dataSaving) {
             throwNewJavaIllegalArgumentException(env, "DATA_SAVING_ROAMING is not supported");
             return DataSaving::Never;
         default:
-            throwNewJavaIllegalArgumentException(env, "Unknown data saving constant: " + dataSaving);
+            throwNewJavaIllegalArgumentException(env, std::string("Unknown data saving constant: ").append(std::to_string(dataSaving)).c_str());
             return DataSaving::Never;
     }
 }
@@ -488,10 +488,9 @@ JNIEXPORT jlong JNICALL Java_org_telegram_messenger_voip_NativeInstance_makeGrou
             .initialEnableNoiseSuppression = (bool) noiseSupression,
             .e2eEncryptDecrypt = e2eEncryptDecrypt,
             .isConference = (bool) conference,
-            .platformContext = platformContext,
     };
     if (!screencast) {
-        descriptor.requestAudioBroadcastPart = [](std::shared_ptr<PlatformContext> platformContext, int64_t timestamp, int64_t duration, std::function<void(BroadcastPart &&)> callback) -> std::shared_ptr<BroadcastPartTask> {
+        descriptor.requestAudioBroadcastPart = [platformContext](int64_t timestamp, int64_t duration, std::function<void(BroadcastPart &&)> callback) -> std::shared_ptr<BroadcastPartTask> {
             std::shared_ptr<BroadcastPartTask> task = std::make_shared<BroadcastPartTaskJava>(platformContext, callback, timestamp, 0, VideoChannelDescription::Quality::Full);
             ((AndroidContext *) platformContext.get())->audioStreamTasks.push_back(task);
             tgvoip::jni::DoWithJNI([platformContext, timestamp, duration, task](JNIEnv *env) {
@@ -500,7 +499,7 @@ JNIEXPORT jlong JNICALL Java_org_telegram_messenger_voip_NativeInstance_makeGrou
             });
             return task;
         };
-        descriptor.requestVideoBroadcastPart = [](std::shared_ptr<PlatformContext> platformContext, int64_t timestamp, int64_t duration, int32_t video_channel, VideoChannelDescription::Quality quality, std::function<void(BroadcastPart &&)> callback) -> std::shared_ptr<BroadcastPartTask> {
+        descriptor.requestVideoBroadcastPart = [platformContext](int64_t timestamp, int64_t duration, int32_t video_channel, VideoChannelDescription::Quality quality, std::function<void(BroadcastPart &&)> callback) -> std::shared_ptr<BroadcastPartTask> {
             std::shared_ptr<BroadcastPartTask> task = std::make_shared<BroadcastPartTaskJava>(platformContext, callback, timestamp, video_channel, quality);
             ((AndroidContext *) platformContext.get())->videoStreamTasks.push_back(task);
             tgvoip::jni::DoWithJNI([platformContext, timestamp, duration, task, video_channel, quality](JNIEnv *env) {
@@ -811,14 +810,14 @@ JNIEXPORT jlong JNICALL Java_org_telegram_messenger_voip_NativeInstance_makeNati
                     env->CallVoidMethod(globalRef, env->GetMethodID(NativeInstanceClass, "onSignalBarsUpdated", "(I)V"), count);
                 });
             },
-            .audioLevelsUpdated = [platformContext](float myAudioLevel, float audioLevel) {
-                tgvoip::jni::DoWithJNI([platformContext, myAudioLevel, audioLevel](JNIEnv *env) {
+            .audioLevelUpdated = [platformContext](float audioLevel) {
+                tgvoip::jni::DoWithJNI([platformContext, audioLevel](JNIEnv *env) {
                     jintArray intArray = nullptr;
                     jfloatArray floatArray = env->NewFloatArray(2);
                     jbooleanArray boolArray = nullptr;
 
                     jfloat floatFill[2];
-                    floatFill[0] = myAudioLevel;
+                    floatFill[0] = 0.0f;
                     floatFill[1] = audioLevel;
                     env->SetFloatArrayRegion(floatArray, 0, 2, floatFill);
 
@@ -841,7 +840,6 @@ JNIEXPORT jlong JNICALL Java_org_telegram_messenger_voip_NativeInstance_makeNati
                     env->DeleteLocalRef(arr);
                 });
             },
-            .platformContext = platformContext,
     };
     descriptor.version = v;
 

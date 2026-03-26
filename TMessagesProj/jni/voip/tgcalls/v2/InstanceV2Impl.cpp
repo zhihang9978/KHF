@@ -63,7 +63,6 @@
 #include "SignalingConnection.h"
 #include "ExternalSignalingConnection.h"
 #include "SignalingSctpConnection.h"
-#include "SignalingKcpConnection.h"
 #include "utils/gzip.h"
 
 namespace tgcalls {
@@ -272,18 +271,18 @@ private:
 namespace {
 class AudioSinkImpl: public webrtc::AudioSinkInterface {
 public:
-    AudioSinkImpl(std::function<void(float, float)> update) :
+    AudioSinkImpl(std::function<void(float)> update) :
     _update(update) {
     }
-    
+
     virtual ~AudioSinkImpl() {
     }
-    
+
     virtual void OnData(const Data& audio) override {
         if (_update && audio.channels == 1) {
             const int16_t *samples = (const int16_t *)audio.data;
             int numberOfSamplesInFrame = (int)audio.samples_per_channel;
-            
+
             int16_t currentPeak = 0;
             for (int i = 0; i < numberOfSamplesInFrame; i++) {
                 int16_t sample = samples[i];
@@ -298,19 +297,19 @@ public:
                 }
                 _peakCount += 1;
             }
-            
+
             if (_peakCount >= 4400) {
                 float level = ((float)(_peak)) / 8000.0f;
                 _peak = 0;
                 _peakCount = 0;
-                _update(0, level);
+                _update(level);
             }
         }
     }
-    
+
 private:
-    std::function<void(float, float)> _update;
-    
+    std::function<void(float)> _update;
+
     int _peakCount = 0;
     uint16_t _peak = 0;
 };
@@ -325,7 +324,7 @@ public:
         webrtc::RtpTransport *rtpTransport,
         rtc::UniqueRandomIdGenerator *randomIdGenerator,
         signaling::MediaContent const &mediaContent,
-        std::function<void(float, float)> onAudioLevelsUpdated,
+        std::function<void(float)> onAudioLevelUpdated,
         std::shared_ptr<Threads> threads) :
     _threads(threads),
     _ssrc(mediaContent.ssrc),
@@ -380,13 +379,13 @@ public:
         streamParams.set_stream_ids({ streamId });
         incomingAudioDescription->AddStream(streamParams);
 
-        threads->getWorkerThread()->BlockingCall([this, &outgoingAudioDescription, &incomingAudioDescription, onAudioLevelsUpdated = std::move(onAudioLevelsUpdated), ssrc = mediaContent.ssrc]() {
+        threads->getWorkerThread()->BlockingCall([this, &outgoingAudioDescription, &incomingAudioDescription, onAudioLevelUpdated = std::move(onAudioLevelUpdated), ssrc = mediaContent.ssrc]() {
             _audioChannel->SetPayloadTypeDemuxingEnabled(false);
             std::string errorDesc;
             _audioChannel->SetLocalContent(outgoingAudioDescription.get(), webrtc::SdpType::kOffer, errorDesc);
             _audioChannel->SetRemoteContent(incomingAudioDescription.get(), webrtc::SdpType::kAnswer, errorDesc);
 
-            std::unique_ptr<AudioSinkImpl> audioLevelSink(new AudioSinkImpl(std::move(onAudioLevelsUpdated)));
+            std::unique_ptr<AudioSinkImpl> audioLevelSink(new AudioSinkImpl(std::move(onAudioLevelUpdated)));
             _audioChannel->receive_channel()->SetRawAudioSink(ssrc, std::move(audioLevelSink));
         });
 
@@ -923,7 +922,7 @@ public:
     _encryptionKey(std::move(descriptor.encryptionKey)),
     _stateUpdated(descriptor.stateUpdated),
     _signalBarsUpdated(descriptor.signalBarsUpdated),
-    _audioLevelsUpdated(descriptor.audioLevelsUpdated),
+    _audioLevelUpdated(descriptor.audioLevelUpdated),
     _remoteBatteryLevelIsLowUpdated(descriptor.remoteBatteryLevelIsLowUpdated),
     _remoteMediaStateUpdated(descriptor.remoteMediaStateUpdated),
     _remotePrefferedAspectRatioUpdated(descriptor.remotePrefferedAspectRatioUpdated),
@@ -936,8 +935,7 @@ public:
     _taskQueueFactory(webrtc::CreateDefaultTaskQueueFactory()),
     _initialInputDeviceId(std::move(descriptor.initialInputDeviceId)),
     _initialOutputDeviceId(std::move(descriptor.initialOutputDeviceId)),
-    _videoCapture(descriptor.videoCapture),
-    _platformContext(descriptor.platformContext) {
+    _videoCapture(descriptor.videoCapture) {
         webrtc::field_trial::InitFieldTrialsFromString(
             "WebRTC-DataChannel-Dcsctp/Enabled/"
             "WebRTC-Audio-MinimizeResamplingOnMobile/Enabled/"
@@ -990,24 +988,7 @@ public:
 
         const auto weak = std::weak_ptr<InstanceV2ImplInternal>(shared_from_this());
 
-        if (getCustomParameterBool(_customParameters, "network_kcp_experiment")) {
-            _signalingConnection = std::make_shared<SignalingKcpConnection>(
-                _threads,
-                [threads = _threads, weak](const std::vector<uint8_t> &data) {
-                    threads->getMediaThread()->PostTask([weak, data] {
-                        const auto strong = weak.lock();
-                        if (!strong) {
-                            return;
-                        }
-
-                        strong->onSignalingData(data);
-                    });
-                },
-                [signalingDataEmitted = _signalingDataEmitted](const std::vector<uint8_t> &data) {
-                    signalingDataEmitted(data);
-                }
-            );
-        } else if (_signalingProtocolVersion == SignalingProtocolVersion::V3 && !getCustomParameterBool(_customParameters, "network_signaling_nosctp")) {
+        if (_signalingProtocolVersion == SignalingProtocolVersion::V3 && !getCustomParameterBool(_customParameters, "network_signaling_nosctp")) {
             _signalingConnection = std::make_shared<SignalingSctpConnection>(
                 _threads,
                 [threads = _threads, weak](const std::vector<uint8_t> &data) {
@@ -1134,8 +1115,8 @@ public:
         peerConnectionFactoryDependencies.audio_encoder_factory = webrtc::CreateAudioEncoderFactory<webrtc::AudioEncoderOpus, webrtc::AudioEncoderL16>();
         peerConnectionFactoryDependencies.audio_decoder_factory = webrtc::CreateAudioDecoderFactory<webrtc::AudioDecoderOpus, webrtc::AudioDecoderL16>();
 
-        peerConnectionFactoryDependencies.video_encoder_factory = PlatformInterface::SharedInstance()->makeVideoEncoderFactory(_platformContext, true);
-        peerConnectionFactoryDependencies.video_decoder_factory = PlatformInterface::SharedInstance()->makeVideoDecoderFactory(_platformContext);
+        peerConnectionFactoryDependencies.video_encoder_factory = PlatformInterface::SharedInstance()->makeVideoEncoderFactory(true);
+        peerConnectionFactoryDependencies.video_decoder_factory = PlatformInterface::SharedInstance()->makeVideoDecoderFactory();
 
         peerConnectionFactoryDependencies.adm = _audioDeviceModule;
 
@@ -1507,7 +1488,7 @@ public:
                             _rtpTransport,
                             _uniqueRandomIdGenerator.get(),
                             content,
-                            _audioLevelsUpdated,
+                            _audioLevelUpdated,
                             _threads
                         ));
                     }
@@ -2205,7 +2186,7 @@ private:
     EncryptionKey _encryptionKey;
     std::function<void(State)> _stateUpdated;
     std::function<void(int)> _signalBarsUpdated;
-    std::function<void(float, float)> _audioLevelsUpdated;
+    std::function<void(float)> _audioLevelUpdated;
     std::function<void(bool)> _remoteBatteryLevelIsLowUpdated;
     std::function<void(AudioState, VideoState)> _remoteMediaStateUpdated;
     std::function<void(float)> _remotePrefferedAspectRatioUpdated;
@@ -2271,7 +2252,6 @@ private:
 
     std::shared_ptr<VideoCaptureInterface> _videoCapture;
     std::shared_ptr<VideoCaptureInterface> _screencastCapture;
-    std::shared_ptr<PlatformContext> _platformContext;
 };
 
 InstanceV2Impl::InstanceV2Impl(Descriptor &&descriptor) {

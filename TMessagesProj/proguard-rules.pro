@@ -6,17 +6,12 @@
 -keep class org.webrtc.* { *; }
 -keep class org.webrtc.audio.* { *; }
 -keep class org.webrtc.voiceengine.* { *; }
-# Second-stage release hardening: stop keeping the whole messenger package.
-# Keep the Application entry point and classes whose native methods rely on
-# stable Java names, while allowing ordinary messenger classes to obfuscate.
--keep class org.telegram.messenger.ApplicationLoader { *; }
--keep class org.telegram.messenger.AndroidUtilities { *; }
--keep class org.telegram.messenger.AnimatedFileDrawableStream { *; }
--keepclasseswithmembernames,includedescriptorclasses class org.telegram.messenger.** {
-    native <methods>;
-}
+-keep class org.telegram.messenger.* { *; }
 -keep class org.telegram.messenger.camera.* { *; }
 -keep class org.telegram.messenger.secretmedia.* { *; }
+-keep class org.telegram.messenger.support.* { *; }
+-keep class org.telegram.messenger.support.* { *; }
+-keep class org.telegram.messenger.time.* { *; }
 -keep class org.telegram.messenger.video.* { *; }
 -keep class org.telegram.messenger.voip.* { *; }
 -keep class org.telegram.SQLite.** { *; }
@@ -109,7 +104,6 @@
 -dontwarn org.checkerframework.**
 -dontwarn javax.annotation.**
 
-# First-stage release hardening: keep optimization disabled for compatibility,
-# but enable real obfuscation so release is no longer just a shrink-only build.
-# Use -keep to explicitly keep any other classes shrinking would remove.
+# Use -keep to explicitly keep any other classes shrinking would remove
 -dontoptimize
+-dontobfuscate

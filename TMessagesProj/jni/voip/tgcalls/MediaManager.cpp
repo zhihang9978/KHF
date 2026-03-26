@@ -247,24 +247,22 @@ MediaManager::MediaManager(
 	std::function<void(Message &&)> sendSignalingMessage,
 	std::function<void(Message &&)> sendTransportMessage,
     std::function<void(int)> signalBarsUpdated,
-    std::function<void(float, float)> audioLevelsUpdated,
+    std::function<void(float)> audioLevelUpdated,
     std::function<webrtc::scoped_refptr<webrtc::AudioDeviceModule>(webrtc::TaskQueueFactory*)> createAudioDeviceModule,
     bool enableHighBitrateVideo,
-    std::vector<std::string> preferredCodecs,
-    std::shared_ptr<PlatformContext> platformContext) :
+    std::vector<std::string> preferredCodecs) :
 _thread(thread),
 _eventLog(std::make_unique<webrtc::RtcEventLogNull>()),
 _sendSignalingMessage(std::move(sendSignalingMessage)),
 _sendTransportMessage(std::move(sendTransportMessage)),
 _signalBarsUpdated(std::move(signalBarsUpdated)),
-_audioLevelsUpdated(std::move(audioLevelsUpdated)),
+_audioLevelUpdated(std::move(audioLevelUpdated)),
 _createAudioDeviceModule(std::move(createAudioDeviceModule)),
 _protocolVersion(protocolVersion),
 _outgoingVideoState(videoCapture ? VideoState::Active : VideoState::Inactive),
 _webrtcEnvironment(webrtc::EnvironmentFactory().Create()),
 _videoCapture(std::move(videoCapture)),
-_enableHighBitrateVideo(enableHighBitrateVideo),
-_platformContext(platformContext) {
+_enableHighBitrateVideo(enableHighBitrateVideo) {
     bool rewriteFrameRotation = false;
     switch (_protocolVersion) {
         case ProtocolVersion::V0:
@@ -321,15 +319,13 @@ _platformContext(platformContext) {
     peerConnectionFactoryDeps.audio_encoder_factory = webrtc::CreateAudioEncoderFactory<webrtc::AudioEncoderOpus>();
     peerConnectionFactoryDeps.audio_decoder_factory = webrtc::CreateAudioDecoderFactory<webrtc::AudioDecoderOpus>();
 
-    peerConnectionFactoryDeps.video_encoder_factory = PlatformInterface::SharedInstance()->makeVideoEncoderFactory(_platformContext);
-    peerConnectionFactoryDeps.video_decoder_factory = PlatformInterface::SharedInstance()->makeVideoDecoderFactory(_platformContext);
+    peerConnectionFactoryDeps.video_encoder_factory = PlatformInterface::SharedInstance()->makeVideoEncoderFactory();
+    peerConnectionFactoryDeps.video_decoder_factory = PlatformInterface::SharedInstance()->makeVideoDecoderFactory();
 
 	_myVideoFormats = ComposeSupportedFormats(
         peerConnectionFactoryDeps.video_encoder_factory->GetSupportedFormats(),
         peerConnectionFactoryDeps.video_decoder_factory->GetSupportedFormats(),
-        preferredCodecs,
-        _platformContext
-    );
+        preferredCodecs);
 
     webrtc::AudioProcessingBuilder builder;
     std::unique_ptr<AudioCapturePostProcessor> audioProcessor = std::make_unique<AudioCapturePostProcessor>([this](float level) {
@@ -473,7 +469,7 @@ void MediaManager::start() {
     }
 
     beginStatsTimer(3000);
-    if (_audioLevelsUpdated != nullptr) {
+    if (_audioLevelUpdated != nullptr) {
         beginLevelsTimer(100);
     }
 }
@@ -607,7 +603,7 @@ void MediaManager::beginLevelsTimer(int timeoutMs) {
         }
 
         float effectiveLevel = fmaxf(strong->_currentAudioLevel, strong->_currentMyAudioLevel);
-        strong->_audioLevelsUpdated(strong->_currentMyAudioLevel, effectiveLevel);
+        strong->_audioLevelUpdated(effectiveLevel);
 
         strong->beginLevelsTimer(100);
     }, webrtc::TimeDelta::Millis(timeoutMs));

@@ -864,7 +864,7 @@ public class TopicsFragment extends BaseFragment implements NotificationCenter.N
             avatarContainer.getAvatarImageView().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    openProfile(true);
+                    openProfile(false);
                 }
             });
         }

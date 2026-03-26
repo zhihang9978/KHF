@@ -324,13 +324,7 @@ public class ApplicationLoader extends Application {
         try {
             ConnectionsManager.native_setJava(false);
         } catch (UnsatisfiedLinkError error) {
-            NativeLoader.resetLocalLibCache(ApplicationLoader.applicationContext);
-            NativeLoader.initNativeLibs(ApplicationLoader.applicationContext);
-            try {
-                ConnectionsManager.native_setJava(false);
-            } catch (UnsatisfiedLinkError retryError) {
-                throw new RuntimeException("can't load native libraries " + Build.CPU_ABI + " lookup folder " + NativeLoader.getAbiFolder() + " details=" + NativeLoader.log, retryError);
-            }
+            throw new RuntimeException("can't load native libraries " +  Build.CPU_ABI + " lookup folder " + NativeLoader.getAbiFolder());
         }
         new ForegroundDetector(this) {
             @Override

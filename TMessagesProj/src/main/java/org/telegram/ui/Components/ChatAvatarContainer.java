@@ -256,7 +256,7 @@ public class ChatAvatarContainer extends FrameLayout implements NotificationCent
         if (avatarClickable) {
             avatarImageView.setOnClickListener(v -> {
                 if (!onAvatarClick()) {
-                    openProfile(true);
+                    openProfile(false);
                 }
             });
         }

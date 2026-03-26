@@ -1,124 +1,26 @@
 {
   "project_info": {
-    "project_number": "000000000000",
-    "firebase_url": "https://anweitong-placeholder.firebaseio.com",
-    "project_id": "anweitong-placeholder",
-    "storage_bucket": "anweitong-placeholder.appspot.com"
+    "project_number": "536304726099",
+    "project_id": "anweitong-478a3",
+    "storage_bucket": "anweitong-478a3.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:000000000000:android:anweitongmain0001",
+        "mobilesdk_app_id": "1:536304726099:android:531589114798b4f05016a6",
         "android_client_info": {
           "package_name": "com.rivermint.pulsechat"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "000000000000-placeholder.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAnWeiTongPlaceholderKey0000000000000"
+          "current_key": "AIzaSyDXJ2v3CP9-HHXIf2ZCwHAqMJYhTxH5ivA"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "000000000000-placeholder.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:000000000000:android:anweitongbeta0002",
-        "android_client_info": {
-          "package_name": "com.rivermint.pulsechat.beta"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "000000000000-placeholder.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAnWeiTongPlaceholderKey0000000000000"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "000000000000-placeholder.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:000000000000:android:anweitongweb00003",
-        "android_client_info": {
-          "package_name": "com.rivermint.pulsechat.web"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "000000000000-placeholder.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAnWeiTongPlaceholderKey0000000000000"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "000000000000-placeholder.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:000000000000:android:telegrammessenger0004",
-        "android_client_info": {
-          "package_name": "org.telegram.messenger"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "000000000000-placeholder.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAnWeiTongPlaceholderKey0000000000000"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "000000000000-placeholder.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

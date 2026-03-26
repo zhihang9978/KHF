@@ -39847,13 +39847,13 @@ public class ChatActivity extends BaseFragment implements
 
     public void openThisProfile() {
         if (avatarContainer == null) return;
-        avatarContainer.openProfile(true);
+        avatarContainer.openProfile(false);
     }
 
     private void openUserProfile(long uid) {
         if (uid < 0) {
             if (uid == getDialogId()) {
-                avatarContainer.openProfile(true);
+                avatarContainer.openProfile(false);
                 return;
             }
             Bundle args = new Bundle();
@@ -39863,7 +39863,7 @@ public class ChatActivity extends BaseFragment implements
             }
         } else if (uid != getUserConfig().getClientUserId()) {
             if (uid == getDialogId()) {
-                avatarContainer.openProfile(true);
+                avatarContainer.openProfile(false);
                 return;
             }
             Bundle args = new Bundle();

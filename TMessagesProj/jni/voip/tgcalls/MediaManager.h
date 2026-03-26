@@ -50,11 +50,10 @@ public:
 		std::function<void(Message &&)> sendSignalingMessage,
 		std::function<void(Message &&)> sendTransportMessage,
         std::function<void(int)> signalBarsUpdated,
-        std::function<void(float, float)> audioLevelUpdated,
+        std::function<void(float)> audioLevelUpdated,
 		std::function<webrtc::scoped_refptr<webrtc::AudioDeviceModule>(webrtc::TaskQueueFactory*)> createAudioDeviceModule,
         bool enableHighBitrateVideo,
-        std::vector<std::string> preferredCodecs,
-		std::shared_ptr<PlatformContext> platformContext);
+        std::vector<std::string> preferredCodecs);
 	~MediaManager();
 
 	void start();
@@ -133,7 +132,7 @@ private:
 	std::function<void(Message &&)> _sendSignalingMessage;
 	std::function<void(Message &&)> _sendTransportMessage;
     std::function<void(int)> _signalBarsUpdated;
-    std::function<void(float, float)> _audioLevelsUpdated;
+    std::function<void(float)> _audioLevelUpdated;
 	std::function<webrtc::scoped_refptr<webrtc::AudioDeviceModule>(webrtc::TaskQueueFactory*)> _createAudioDeviceModule;
 
 	SSRC _ssrcAudio;
@@ -188,8 +187,6 @@ private:
 
     std::vector<float> _externalAudioSamples;
     webrtc::Mutex _externalAudioSamplesMutex;
-
-	std::shared_ptr<PlatformContext> _platformContext;
 };
 
 } // namespace tgcalls

@@ -30,21 +30,6 @@ public class NativeLoader {
     private static volatile boolean nativeLoaded = false;
     public static StringBuilder log = new StringBuilder();
 
-    private static void deleteRecursive(File file) {
-        if (file == null || !file.exists()) {
-            return;
-        }
-        if (file.isDirectory()) {
-            File[] children = file.listFiles();
-            if (children != null) {
-                for (File child : children) {
-                    deleteRecursive(child);
-                }
-            }
-        }
-        file.delete();
-    }
-
     private static File getNativeLibraryDir(Context context) {
         File f = null;
         if (context != null) {
@@ -101,12 +86,10 @@ public class NativeLoader {
                 nativeLoaded = true;
             } catch (Error e) {
                 FileLog.e(e);
-                log.append("100: ").append(e).append("\n");
             }
-            return nativeLoaded;
+            return true;
         } catch (Exception e) {
             FileLog.e(e);
-            log.append("106: ").append(e).append("\n");
         } finally {
             if (stream != null) {
                 try {
@@ -131,7 +114,6 @@ public class NativeLoader {
         if (nativeLoaded) {
             return;
         }
-        log.setLength(0);
 
         try {
             try {
@@ -166,6 +148,20 @@ public class NativeLoader {
             destDir.mkdirs();
 
             File destLocalFile = new File(destDir, LOCALE_LIB_SO_NAME);
+            if (destLocalFile.exists()) {
+                try {
+                    if (BuildVars.LOGS_ENABLED) {
+                        FileLog.d("Load local lib");
+                    }
+                    System.load(destLocalFile.getAbsolutePath());
+                    nativeLoaded = true;
+                    return;
+                } catch (Error e) {
+                    log.append(e).append("\n");
+                    FileLog.e(e);
+                }
+                destLocalFile.delete();
+            }
 
             if (BuildVars.LOGS_ENABLED) {
                 FileLog.e("Library not found, arch = " + folder);
@@ -186,19 +182,6 @@ public class NativeLoader {
         } catch (Error e) {
             FileLog.e(e);
             log.append("184: ").append(e).append("\n");
-        }
-    }
-
-    public static synchronized void resetLocalLibCache(Context context) {
-        nativeLoaded = false;
-        if (context == null) {
-            return;
-        }
-        try {
-            File destDir = new File(context.getFilesDir(), "lib");
-            deleteRecursive(destDir);
-        } catch (Throwable e) {
-            FileLog.e(e);
         }
     }
 
