@@ -49,8 +49,10 @@ public class VideoCapturerDevice {
 
     private static VideoCapturerDevice[] instance = new VideoCapturerDevice[2];
     private CapturerObserver nativeCapturerObserver;
+    private final boolean screencastDevice;
 
     public VideoCapturerDevice(boolean screencast) {
+        screencastDevice = screencast;
         if (Build.VERSION.SDK_INT < 18) {
             return;
         }
@@ -127,6 +129,10 @@ public class VideoCapturerDevice {
             size.y = (int) Math.ceil((size.y / scale) / 4.0f) * 4;
         }
         return size;
+    }
+
+    private void init(long ptr, boolean frontCamera) {
+        init(ptr, screencastDevice ? "screen" : (frontCamera ? "front" : "back"));
     }
 
     private void init(long ptr, String deviceName) {

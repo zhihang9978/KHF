@@ -1926,9 +1926,42 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 				callFailed();
 			} else {
 				privateCall = ((TL_phone.TL_phone_phoneCall) response).phone_call;
+				if (BuildVars.LOGS_ENABLED) {
+					FileLog.d("confirmCall phone_call: protocol=" + privateCall.protocol.library_versions + ", p2p_allowed=" + privateCall.p2p_allowed + ", connections=" + describePhoneConnections(privateCall.connections));
+				}
 				initiateActualEncryptedCall();
 			}
 		}));
+	}
+
+	private String describePhoneConnections(ArrayList<TLRPC.PhoneConnection> connections) {
+		if (connections == null) {
+			return "null";
+		}
+		StringBuilder sb = new StringBuilder();
+		sb.append("count=").append(connections.size()).append(" [");
+		for (int i = 0; i < connections.size(); i++) {
+			if (i > 0) {
+				sb.append("; ");
+			}
+			TLRPC.PhoneConnection connection = connections.get(i);
+			sb.append('#').append(i)
+				.append("{type=")
+				.append(connection instanceof TLRPC.TL_phoneConnectionWebrtc ? "webrtc" : "reflector")
+				.append(", id=").append(connection.id)
+				.append(", ip=").append(connection.ip)
+				.append(", ipv6=").append(connection.ipv6)
+				.append(", port=").append(connection.port)
+				.append(", tcp=").append(connection.tcp)
+				.append(", turn=").append(connection.turn)
+				.append(", stun=").append(connection.stun);
+			if (connection instanceof TLRPC.TL_phoneConnectionWebrtc) {
+				sb.append(", user=").append(connection.username);
+			}
+			sb.append('}');
+		}
+		sb.append(']');
+		return sb.toString();
 	}
 
 	private int convertDataSavingMode(int mode) {
@@ -3471,6 +3504,9 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 			// endpoints
 			final boolean forceTcp = preferences.getBoolean("dbg_force_tcp_in_calls", false);
 			final int endpointType = forceTcp ? Instance.ENDPOINT_TYPE_TCP_RELAY : Instance.ENDPOINT_TYPE_UDP_RELAY;
+			if (BuildVars.LOGS_ENABLED) {
+				FileLog.d("initiateActualEncryptedCall: forceTcp=" + forceTcp + ", endpointType=" + endpointType + ", protocol=" + privateCall.protocol.library_versions + ", connections=" + describePhoneConnections(privateCall.connections));
+			}
 			final Instance.Endpoint[] endpoints = new Instance.Endpoint[privateCall.connections.size()];
 			ArrayList<Long> reflectorIds = new ArrayList<>();
 			for (int i = 0; i < endpoints.length; i++) {

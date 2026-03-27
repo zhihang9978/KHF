@@ -150,6 +150,12 @@ public class NativeInstance {
         AndroidUtilities.runOnUIThread(() -> unknownParticipantsCallback.run(taskPtr, ssrcs));
     }
 
+    private void onCancelRequestMediaChannelDescription(long taskPtr) {
+        // Newer native tgcalls may cancel a pending media description request.
+        // The current Java layer has no extra cancellation bookkeeping, so a no-op
+        // keeps the JNI bridge compatible without breaking existing flows.
+    }
+
     private void onEmitJoinPayload(String json, int ssrc) {
         try {
             AndroidUtilities.runOnUIThread(() -> payloadCallback.run(ssrc, json));

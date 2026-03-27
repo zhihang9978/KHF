@@ -60,4 +60,9 @@ JNIEXPORT jobject Java_org_telegram_messenger_voip_VideoCameraCapturer_nativeGet
     return capturer->GetJavaVideoCapturerObserver(env).Release();
 }
 
+JNIEXPORT jobject Java_org_telegram_messenger_voip_VideoCapturerDevice_nativeGetJavaVideoCapturerObserver(JNIEnv *env, jclass clazz, jlong ptr) {
+    tgcalls::VideoCameraCapturer *capturer = (tgcalls::VideoCameraCapturer *) (intptr_t) ptr;
+    return capturer->GetJavaVideoCapturerObserver(env).Release();
+}
+
 }
