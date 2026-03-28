@@ -15,6 +15,7 @@
 #include <memory>
 #include <utility>
 #include <map>
+#include <algorithm>
 
 #include "pc/video_track.h"
 #include "legacy/InstanceImplLegacy.h"
@@ -1275,6 +1276,14 @@ extern "C"
 JNIEXPORT jobjectArray JNICALL
 Java_org_telegram_messenger_voip_NativeInstance_getAllVersions(JNIEnv* env) {
     std::vector<std::string> v = tgcalls::Meta::Versions();
+    v.erase(
+        std::remove_if(v.begin(), v.end(), [](const std::string &version) {
+            return version == "2.7.7"
+                || version == "5.0.0"
+                || version == "10.0.0"
+                || version == "11.0.0";
+        }),
+        v.end());
     jclass stringClass = env->FindClass("java/lang/String");
     if (!stringClass) {
         return nullptr;

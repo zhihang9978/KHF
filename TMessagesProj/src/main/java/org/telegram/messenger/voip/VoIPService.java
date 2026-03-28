@@ -88,7 +88,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.RemoteViews;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -198,7 +197,6 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 
 	public static final int CAPTURE_DEVICE_CAMERA = 0;
 	public static final int CAPTURE_DEVICE_SCREEN = 1;
-
 	public static final int DISCARD_REASON_HANGUP = 1;
 	public static final int DISCARD_REASON_DISCONNECT = 2;
 	public static final int DISCARD_REASON_MISSED = 3;
@@ -1926,9 +1924,6 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 				callFailed();
 			} else {
 				privateCall = ((TL_phone.TL_phone_phoneCall) response).phone_call;
-				if (BuildVars.LOGS_ENABLED) {
-					FileLog.d("confirmCall phone_call: protocol=" + privateCall.protocol.library_versions + ", p2p_allowed=" + privateCall.p2p_allowed + ", connections=" + describePhoneConnections(privateCall.connections));
-				}
 				initiateActualEncryptedCall();
 			}
 		}));
@@ -3504,9 +3499,6 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 			// endpoints
 			final boolean forceTcp = preferences.getBoolean("dbg_force_tcp_in_calls", false);
 			final int endpointType = forceTcp ? Instance.ENDPOINT_TYPE_TCP_RELAY : Instance.ENDPOINT_TYPE_UDP_RELAY;
-			if (BuildVars.LOGS_ENABLED) {
-				FileLog.d("initiateActualEncryptedCall: forceTcp=" + forceTcp + ", endpointType=" + endpointType + ", protocol=" + privateCall.protocol.library_versions + ", connections=" + describePhoneConnections(privateCall.connections));
-			}
 			final Instance.Endpoint[] endpoints = new Instance.Endpoint[privateCall.connections.size()];
 			ArrayList<Long> reflectorIds = new ArrayList<>();
 			for (int i = 0; i < endpoints.length; i++) {
@@ -3526,10 +3518,6 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 					endpoints[i].reflectorId = reflectorIdMapping.getOrDefault(endpoints[i].id, 0);
 				}
 			}
-			if (forceTcp) {
-				AndroidUtilities.runOnUIThread(() -> Toast.makeText(VoIPService.this, "This call uses TCP which will degrade its quality.", Toast.LENGTH_SHORT).show());
-			}
-
 			// proxy
 			Instance.Proxy proxy = null;
 			if (preferences.getBoolean("proxy_enabled", false) && preferences.getBoolean("proxy_enabled_calls", false)) {
