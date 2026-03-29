@@ -83,7 +83,7 @@ public class DialogsBotsAdapter extends UniversalAdapter {
                         if (alert[0] != null) {
                             alert[0].dismiss();
                         }
-                    Browser.openUrl(context, "https://andunwei.com/" + username);
+                    Browser.openUrl(context, "https://anyudun.com/" + username);
                     }
                     @Override
                     public void updateDrawState(@NonNull TextPaint ds) {

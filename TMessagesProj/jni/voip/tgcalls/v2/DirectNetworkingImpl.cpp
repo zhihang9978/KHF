@@ -504,6 +504,10 @@ void DirectNetworkingImpl::setRemoteParams(PeerIceParameters const &remoteIcePar
 void DirectNetworkingImpl::addCandidates(std::vector<cricket::Candidate> const &candidates) {
 }
 
+void DirectNetworkingImpl::requestIceRestart() {
+    RTC_LOG(LS_INFO) << "requestIceRestart: direct networking does not support ICE restart";
+}
+
 void DirectNetworkingImpl::sendDataChannelMessage(std::string const &message) {
     if (_dataChannelInterface) {
         _dataChannelInterface->sendDataChannelMessage(message);

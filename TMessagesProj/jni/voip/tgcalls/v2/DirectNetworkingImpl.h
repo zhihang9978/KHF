@@ -68,6 +68,7 @@ public:
     std::unique_ptr<rtc::SSLFingerprint> getLocalFingerprint();
     void setRemoteParams(PeerIceParameters const &remoteIceParameters, rtc::SSLFingerprint *fingerprint, std::string const &sslSetup);
     void addCandidates(std::vector<cricket::Candidate> const &candidates);
+    void requestIceRestart();
 
     void sendDataChannelMessage(std::string const &message);
 

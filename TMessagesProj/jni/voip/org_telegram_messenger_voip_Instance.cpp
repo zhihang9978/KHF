@@ -849,12 +849,13 @@ JNIEXPORT jlong JNICALL Java_org_telegram_messenger_voip_NativeInstance_makeNati
         bool isRtc = endpointObject.getBooleanField("isRtc");
         if (isRtc) {
             RtcServer rtcServer;
-            rtcServer.id = static_cast<uint8_t>(endpointObject.getIntField("reflectorId"));
+            rtcServer.id = static_cast<uint8_t>(endpointObject.getLongField("id"));
             rtcServer.host = tgvoip::jni::JavaStringToStdString(env, endpointObject.getStringField("ipv4"));
             rtcServer.port = static_cast<uint16_t>(endpointObject.getIntField("port"));
             rtcServer.login = tgvoip::jni::JavaStringToStdString(env, endpointObject.getStringField("username"));
             rtcServer.password = tgvoip::jni::JavaStringToStdString(env, endpointObject.getStringField("password"));
             rtcServer.isTurn = endpointObject.getBooleanField("turn");
+            rtcServer.isTcp = endpointObject.getBooleanField("tcp");
             descriptor.rtcServers.push_back(std::move(rtcServer));
         } else {
             RtcServer rtcServer;
@@ -926,6 +927,15 @@ JNIEXPORT void JNICALL Java_org_telegram_messenger_voip_NativeInstance_setNetwor
         return;
     }
     instance->nativeInstance->setNetworkType(parseNetworkType(networkType));
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_org_telegram_messenger_voip_NativeInstance_requestIceRestart(JNIEnv *env, jobject obj) {
+    InstanceHolder *instance = getInstanceHolder(env, obj);
+    if (instance == nullptr || instance->nativeInstance == nullptr) {
+        return;
+    }
+    instance->nativeInstance->requestIceRestart();
 }
 
 extern "C"

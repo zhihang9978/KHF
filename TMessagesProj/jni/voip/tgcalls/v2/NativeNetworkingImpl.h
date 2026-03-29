@@ -65,6 +65,7 @@ public:
     virtual std::unique_ptr<rtc::SSLFingerprint> getLocalFingerprint() override;
     virtual void setRemoteParams(PeerIceParameters const &remoteIceParameters, rtc::SSLFingerprint *fingerprint, std::string const &sslSetup) override;
     virtual void addCandidates(std::vector<cricket::Candidate> const &candidates) override;
+    virtual void requestIceRestart() override;
 
     virtual void sendDataChannelMessage(std::string const &message) override;
 

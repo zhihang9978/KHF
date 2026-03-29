@@ -1360,12 +1360,12 @@ public class ManageLinksActivity extends BaseFragment implements NotificationCen
                 SpannableStringBuilder builder = new SpannableStringBuilder(invite.title);
                 Emoji.replaceEmoji(builder, titleView.getPaint().getFontMetricsInt(), false);
                 titleView.setText(builder);
-            } else if (invite.link.startsWith("https://andunwei.com/+")) {
-                titleView.setText(MessagesController.getInstance(currentAccount).linkPrefix + "/" + invite.link.substring("https://andunwei.com/+".length()));
+            } else if (invite.link.startsWith("https://anyudun.com/+")) {
+                titleView.setText(MessagesController.getInstance(currentAccount).linkPrefix + "/" + invite.link.substring("https://anyudun.com/+".length()));
             } else if (invite.link.startsWith("https://teamgram.me/+")) {
                 titleView.setText(MessagesController.getInstance(currentAccount).linkPrefix + "/" + invite.link.substring("https://teamgram.me/+".length()));
-            } else if (invite.link.startsWith("https://andunwei.com/joinchat/")) {
-                titleView.setText(invite.link.substring("https://andunwei.com/joinchat/".length()));
+            } else if (invite.link.startsWith("https://anyudun.com/joinchat/")) {
+                titleView.setText(invite.link.substring("https://anyudun.com/joinchat/".length()));
             } else if (invite.link.startsWith("https://teamgram.me/joinchat/")) {
                 titleView.setText(invite.link.substring("https://teamgram.me/joinchat/".length()));
             } else if (invite.link.startsWith("https://")) {

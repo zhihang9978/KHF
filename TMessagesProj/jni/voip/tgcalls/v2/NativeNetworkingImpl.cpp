@@ -619,11 +619,14 @@ void NativeNetworkingImpl::resetDtlsSrtpTransport() {
 
     for (auto &server : _rtcServers) {
         if (server.isTurn) {
+            const auto transportProtocol = (server.isTcp && (server.port == 443 || server.port == 5349))
+                ? cricket::PROTO_TLS
+                : (server.isTcp ? cricket::PROTO_TCP : cricket::PROTO_UDP);
             turnServers.push_back(cricket::RelayServerConfig(
                 rtc::SocketAddress(server.host, server.port),
                 server.login,
                 server.password,
-                server.isTcp ? cricket::PROTO_TCP : cricket::PROTO_UDP
+                transportProtocol
             ));
         } else {
             rtc::SocketAddress stunAddress = rtc::SocketAddress(server.host, server.port);
@@ -820,6 +823,33 @@ void NativeNetworkingImpl::addCandidates(std::vector<cricket::Candidate> const &
         
         _transportChannel->AddRemoteCandidate(candidate);
     }
+}
+
+void NativeNetworkingImpl::requestIceRestart() {
+    if (!_transportChannel) {
+        return;
+    }
+
+    _localIceParameters = PeerIceParameters(
+        rtc::CreateRandomString(cricket::ICE_UFRAG_LENGTH),
+        rtc::CreateRandomString(cricket::ICE_PWD_LENGTH),
+        true
+    );
+
+    cricket::IceParameters localIceParameters(
+        _localIceParameters.ufrag,
+        _localIceParameters.pwd,
+        _localIceParameters.supportsRenomination
+    );
+
+    RTC_LOG(LS_INFO) << "requestIceRestart: refreshing local ICE parameters";
+    _transportChannel->SetIceParameters(localIceParameters);
+    _transportChannel->MaybeStartGathering();
+
+    _isConnected = false;
+    _isFailed = false;
+    _lastDisconnectedTimestamp = rtc::TimeMillis();
+    notifyStateUpdated();
 }
 
 void NativeNetworkingImpl::sendDataChannelMessage(std::string const &message) {

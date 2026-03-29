@@ -2020,6 +2020,18 @@ public:
 
     }
 
+    void requestIceRestart() {
+        if (!_handshakeCompleted) {
+            return;
+        }
+
+        RTC_LOG(LS_INFO) << "InstanceV2Impl requestIceRestart";
+        _networking->perform([](InstanceNetworking *networking) {
+            networking->requestIceRestart();
+        });
+        sendInitialSetup();
+    }
+
     void setMuteMicrophone(bool muteMicrophone) {
         if (_isMicrophoneMuted != muteMicrophone) {
             _isMicrophoneMuted = muteMicrophone;
@@ -2302,6 +2314,12 @@ void InstanceV2Impl::setRequestedVideoAspect(float aspect) {
 void InstanceV2Impl::setNetworkType(NetworkType networkType) {
     _internal->perform([networkType](InstanceV2ImplInternal *internal) {
         internal->setNetworkType(networkType);
+    });
+}
+
+void InstanceV2Impl::requestIceRestart() {
+    _internal->perform([](InstanceV2ImplInternal *internal) {
+        internal->requestIceRestart();
     });
 }
 

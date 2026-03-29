@@ -662,10 +662,6 @@ public:
         peerConnectionConfiguration.prioritize_most_likely_ice_candidate_pairs = true;
 
         for (auto &server : _rtcServers) {
-            if (server.isTcp) {
-                continue;
-            }
-
             rtc::SocketAddress address(server.host, server.port);
             if (!address.IsComplete()) {
                 RTC_LOG(LS_ERROR) << "Invalid ICE server host: " << server.host;
@@ -675,8 +671,16 @@ public:
             if (server.isTurn) {
                 webrtc::PeerConnectionInterface::IceServer mappedServer;
 
-                mappedServer.urls.push_back(
-                    "turn:" + address.HostAsURIString() + ":" + std::to_string(server.port));
+                if (server.isTcp && (server.port == 443 || server.port == 5349)) {
+                    mappedServer.urls.push_back(
+                        "turns:" + address.HostAsURIString() + ":" + std::to_string(server.port) + "?transport=tcp");
+                } else if (server.isTcp) {
+                    mappedServer.urls.push_back(
+                        "turn:" + address.HostAsURIString() + ":" + std::to_string(server.port) + "?transport=tcp");
+                } else {
+                    mappedServer.urls.push_back(
+                        "turn:" + address.HostAsURIString() + ":" + std::to_string(server.port) + "?transport=udp");
+                }
                 mappedServer.username = server.login;
                 mappedServer.password = server.password;
 
@@ -1461,6 +1465,23 @@ public:
     void setNetworkType(NetworkType networkType) {
     }
 
+    void requestIceRestart() {
+        if (_isStopping.load()) {
+            return;
+        }
+
+        auto peerConnection = _peerConnection;
+        if (!peerConnection) {
+            return;
+        }
+
+        RTC_LOG(LS_INFO) << "InstanceV2ReferenceImpl requestIceRestart";
+        _isConnected = false;
+        _isFailed = false;
+        onNetworkStateUpdated();
+        peerConnection->RestartIce();
+    }
+
     void setMuteMicrophone(bool muteMicrophone) {
         if (_isMicrophoneMuted != muteMicrophone) {
             _isMicrophoneMuted = muteMicrophone;
@@ -1764,6 +1785,12 @@ void InstanceV2ReferenceImpl::setRequestedVideoAspect(float aspect) {
 void InstanceV2ReferenceImpl::setNetworkType(NetworkType networkType) {
     _internal->perform([networkType](InstanceV2ReferenceImplInternal *internal) {
         internal->setNetworkType(networkType);
+    });
+}
+
+void InstanceV2ReferenceImpl::requestIceRestart() {
+    _internal->perform([](InstanceV2ReferenceImplInternal *internal) {
+        internal->requestIceRestart();
     });
 }
 

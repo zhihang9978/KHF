@@ -222,6 +222,7 @@ public class NativeInstance {
     public native void setBufferSize(int size);
     public native String getVersion();
     public native void setNetworkType(int networkType);
+    public native void requestIceRestart();
     public native void setMuteMicrophone(boolean muteMicrophone);
     public native void setVolume(int ssrc, double volume);
     public native void setAudioOutputGainControlEnabled(boolean enabled);

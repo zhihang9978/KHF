@@ -298,6 +298,8 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 	private long[] captureDevice = new long[2];
 	private boolean[] destroyCaptureDevice = {true, true};
 	private int[] videoState = {Instance.VIDEO_STATE_INACTIVE, Instance.VIDEO_STATE_INACTIVE};
+	private long lastIceRestartTime;
+	private static final long ICE_RESTART_DEBOUNCE_MS = 3000;
 	public boolean isConverting() {
 		return convertingVoip != null;
 	}
@@ -482,6 +484,7 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 				updateOutputGainControlState();
 			} else if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
 				updateNetworkType();
+				requestIceRestart();
 			} else if (BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED.equals(intent.getAction())) {
 				if (BuildVars.LOGS_ENABLED) {
 					FileLog.e("bt headset state = " + intent.getIntExtra(BluetoothProfile.EXTRA_STATE, 0));
@@ -1147,8 +1150,8 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 				reqCall.user_id = MessagesController.getInstance(currentAccount).getInputUser(user);
 				reqCall.protocol = new TL_phone.TL_phoneCallProtocol();
 				reqCall.video = videoCall;
-				reqCall.protocol.udp_p2p = true;
-				reqCall.protocol.udp_reflector = true;
+				reqCall.protocol.udp_p2p = false;
+				reqCall.protocol.udp_reflector = false;
 				reqCall.protocol.min_layer = CALL_MIN_LAYER;
 				reqCall.protocol.max_layer = Instance.getConnectionMaxLayer();
 				Collections.addAll(reqCall.protocol.library_versions, NativeInstance.getAllVersions());
@@ -1917,7 +1920,8 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 		req.protocol = new TL_phone.TL_phoneCallProtocol();
 		req.protocol.max_layer = Instance.getConnectionMaxLayer();
 		req.protocol.min_layer = CALL_MIN_LAYER;
-		req.protocol.udp_p2p = req.protocol.udp_reflector = true;
+		req.protocol.udp_p2p = false;
+		req.protocol.udp_reflector = false;
 		Collections.addAll(req.protocol.library_versions, NativeInstance.getAllVersions());
 		ConnectionsManager.getInstance(currentAccount).sendRequest(req, (response, error) -> AndroidUtilities.runOnUIThread(() -> {
 			if (error != null) {
@@ -2311,7 +2315,7 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 			groupCall.call.can_change_join_muted = true;
 			groupCall.call.rtmp_stream = isRtmpStream;
 			if (joinConference instanceof TLRPC.TL_inputGroupCallSlug) {
-				groupCall.call.invite_link = "https://andunwei.com/call/" + joinConference.slug;
+				groupCall.call.invite_link = "https://anyudun.com/call/" + joinConference.slug;
 			}
 			groupCall.chatId = 0;
 			groupCall.currentAccount = AccountInstance.getInstance(currentAccount);
@@ -3497,12 +3501,22 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 			final String persistentStateFilePath = new File(ApplicationLoader.applicationContext.getCacheDir(), "voip_persistent_state.json").getAbsolutePath();
 
 			// endpoints
-			final boolean forceTcp = preferences.getBoolean("dbg_force_tcp_in_calls", false);
-			final int endpointType = forceTcp ? Instance.ENDPOINT_TYPE_TCP_RELAY : Instance.ENDPOINT_TYPE_UDP_RELAY;
-			final Instance.Endpoint[] endpoints = new Instance.Endpoint[privateCall.connections.size()];
+			final int endpointType = Instance.ENDPOINT_TYPE_UDP_RELAY;
+			final ArrayList<TLRPC.PhoneConnection> effectiveConnections = new ArrayList<>();
+			for (int i = 0; i < privateCall.connections.size(); i++) {
+				final TLRPC.PhoneConnection connection = privateCall.connections.get(i);
+				if (connection instanceof TLRPC.TL_phoneConnectionWebrtc) {
+					effectiveConnections.add(connection);
+				}
+			}
+			if (effectiveConnections.isEmpty()) {
+				callFailed();
+				return;
+			}
+			final Instance.Endpoint[] endpoints = new Instance.Endpoint[effectiveConnections.size()];
 			ArrayList<Long> reflectorIds = new ArrayList<>();
 			for (int i = 0; i < endpoints.length; i++) {
-				final TLRPC.PhoneConnection connection = privateCall.connections.get(i);
+				final TLRPC.PhoneConnection connection = effectiveConnections.get(i);
 				endpoints[i] = new Instance.Endpoint(connection instanceof TLRPC.TL_phoneConnectionWebrtc, connection.id, connection.ip, connection.ipv6, connection.port, endpointType, connection.peer_tag, connection.turn, connection.stun, connection.username, connection.password, connection.tcp);
 				if (connection instanceof TLRPC.TL_phoneConnection) {
 					reflectorIds.add(((TLRPC.TL_phoneConnection) connection).id);
@@ -4433,7 +4447,8 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 				req1.peer.id = privateCall.id;
 				req1.peer.access_hash = privateCall.access_hash;
 				req1.protocol = new TL_phone.TL_phoneCallProtocol();
-				req1.protocol.udp_p2p = req1.protocol.udp_reflector = true;
+				req1.protocol.udp_p2p = false;
+				req1.protocol.udp_reflector = false;
 				req1.protocol.min_layer = CALL_MIN_LAYER;
 				req1.protocol.max_layer = Instance.getConnectionMaxLayer();
 				Collections.addAll(req1.protocol.library_versions, NativeInstance.getAllVersions());
@@ -5159,6 +5174,28 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 		} else {
 			lastNetInfo = getActiveNetworkInfo();
 		}
+	}
+
+	private void requestIceRestart() {
+		if (isCallEnded || privateCall == null) {
+			return;
+		}
+		final NativeInstance instance = tgVoip[CAPTURE_DEVICE_CAMERA];
+		if (instance == null || instance.isGroup()) {
+			return;
+		}
+		if (currentState != STATE_ESTABLISHED && currentState != STATE_RECONNECTING) {
+			return;
+		}
+		long now = SystemClock.elapsedRealtime();
+		if (now - lastIceRestartTime < ICE_RESTART_DEBOUNCE_MS) {
+			return;
+		}
+		lastIceRestartTime = now;
+		if (BuildVars.LOGS_ENABLED) {
+			FileLog.d("VoIP: requestIceRestart netType=" + getNetworkType() + " callId=" + getCallID());
+		}
+		instance.requestIceRestart();
 	}
 
 	private int getNetworkType() {

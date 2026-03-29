@@ -37914,6 +37914,7 @@ public class TLRPC {
             flags = stream.readInt32(exception);
             turn = (flags & 1) != 0;
             stun = (flags & 2) != 0;
+            tcp = (flags & 4) != 0;
             id = stream.readInt64(exception);
             ip = stream.readString(exception);
             ipv6 = stream.readString(exception);
@@ -37926,6 +37927,7 @@ public class TLRPC {
             stream.writeInt32(constructor);
             flags = turn ? (flags | 1) : (flags &~ 1);
             flags = stun ? (flags | 2) : (flags &~ 2);
+            flags = tcp ? (flags | 4) : (flags &~ 4);
             stream.writeInt32(flags);
             stream.writeInt64(id);
             stream.writeString(ip);
