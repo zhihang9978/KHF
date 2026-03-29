@@ -255,8 +255,8 @@
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:host="anyudun.com" android:scheme="http" />
-                <data android:host="anyudun.com" android:scheme="https" />
+                <data android:host="andunwei.com" android:scheme="http" />
+                <data android:host="andunwei.com" android:scheme="https" />
             </intent-filter>
             <intent-filter android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round" android:priority="1">
                 <action android:name="android.intent.action.VIEW"/>

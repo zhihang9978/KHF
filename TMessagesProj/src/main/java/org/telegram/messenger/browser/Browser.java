@@ -207,23 +207,23 @@ public class Browser {
         if (link.startsWith("@")) {
             return link.substring(1);
         }
-        if (link.startsWith("anyudun.com/")) {
-            return link.substring("anyudun.com/".length());
+        if (link.startsWith("andunwei.com/")) {
+            return link.substring("andunwei.com/".length());
         }
-        if (link.startsWith("anyudun.com/")) {
-            return link.substring("anyudun.com/".length());
+        if (link.startsWith("andunwei.com/")) {
+            return link.substring("andunwei.com/".length());
         }
-        if (link.startsWith("http://anyudun.com/")) {
-            return link.substring("http://anyudun.com/".length());
+        if (link.startsWith("http://andunwei.com/")) {
+            return link.substring("http://andunwei.com/".length());
         }
-        if (link.startsWith("http://anyudun.com/")) {
-            return link.substring("http://anyudun.com/".length());
+        if (link.startsWith("http://andunwei.com/")) {
+            return link.substring("http://andunwei.com/".length());
         }
-        if (link.startsWith("https://anyudun.com/")) {
-            return link.substring("https://anyudun.com/".length());
+        if (link.startsWith("https://andunwei.com/")) {
+            return link.substring("https://andunwei.com/".length());
         }
-        if (link.startsWith("https://anyudun.com/")) {
-            return link.substring("https://anyudun.com/".length());
+        if (link.startsWith("https://andunwei.com/")) {
+            return link.substring("https://andunwei.com/".length());
         }
         Matcher prefixMatcher = LaunchActivity.PREFIX_T_ME_PATTERN.matcher(link);
         if (prefixMatcher.find()) {
@@ -235,7 +235,7 @@ public class Browser {
     public static boolean urlMustNotHaveConfirmation(String url) {
         return (
             isTelegraphUrl(url, false, true) ||
-            url.matches("^(https://)?andunwei\\.com/iv\\??(/.*|$)") || // anyudun.com/iv?
+            url.matches("^(https://)?andunwei\\.com/iv\\??(/.*|$)") || // andunwei.com/iv?
             url.matches("^(https://)?fragment\\.com(/.*|$)") // fragment.com
         );
     }
@@ -315,7 +315,7 @@ public class Browser {
         if (tryTelegraph) {
             try {
                 String host = AndroidUtilities.getHostAuthority(uri);
-                if (UserConfig.getInstance(UserConfig.selectedAccount).getCurrentUser() != null && (isTelegraphUrl(host, true) || "anyudun.com".equalsIgnoreCase(host) && (uri.toString().toLowerCase().contains("anyudun.com/faq") || uri.toString().toLowerCase().contains("anyudun.com/privacy") || uri.toString().toLowerCase().contains("anyudun.com/blog")))) {
+                if (UserConfig.getInstance(UserConfig.selectedAccount).getCurrentUser() != null && (isTelegraphUrl(host, true) || "andunwei.com".equalsIgnoreCase(host) && (uri.toString().toLowerCase().contains("andunwei.com/faq") || uri.toString().toLowerCase().contains("andunwei.com/privacy") || uri.toString().toLowerCase().contains("andunwei.com/blog")))) {
                     final AlertDialog[] progressDialog = new AlertDialog[] {
                         new AlertDialog(context, AlertDialog.ALERT_TYPE_SPINNER)
                     };
@@ -688,7 +688,7 @@ public class Browser {
 
         Matcher prefixMatcher = LaunchActivity.PREFIX_T_ME_PATTERN.matcher(host);
         if (prefixMatcher.find()) {
-            uri = Uri.parse("https://anyudun.com/" + prefixMatcher.group(1) + (TextUtils.isEmpty(uri.getPath()) ? "" : "/" + uri.getPath()) + (TextUtils.isEmpty(uri.getQuery()) ? "" : "?" + uri.getQuery()));
+            uri = Uri.parse("https://andunwei.com/" + prefixMatcher.group(1) + (TextUtils.isEmpty(uri.getPath()) ? "" : "/" + uri.getPath()) + (TextUtils.isEmpty(uri.getQuery()) ? "" : "?" + uri.getQuery()));
 
             host = uri.getHost();
             host = host != null ? host.toLowerCase() : "";
@@ -707,7 +707,7 @@ public class Browser {
             return true;
         } else if ("tg2".equals(uri.getScheme())) {
             return true;
-        } else if ("anyudun.com".equals(host)) {
+        } else if ("andunwei.com".equals(host)) {
             String path = uri.getPath();
             if (path != null && path.length() > 1) {
                 if (all) {
@@ -722,7 +722,7 @@ public class Browser {
                 }
                 return true;
             }
-        } else if ("anyudun.com".equals(host)) {
+        } else if ("andunwei.com".equals(host)) {
             String path = uri.getPath();
             if (path != null && path.length() > 1) {
                 if (all) {
@@ -737,10 +737,10 @@ public class Browser {
                 }
                 return true;
             }
-        } else if ("anyudun.com".equals(host) && uri != null && uri.getPath() != null && uri.getPath().startsWith("/blog/")) {
+        } else if ("andunwei.com".equals(host) && uri != null && uri.getPath() != null && uri.getPath().startsWith("/blog/")) {
             return true;
         } else if (all) {
-            if (host.endsWith("anyudun.com")) {
+            if (host.endsWith("andunwei.com")) {
                 return true;
             }
         }

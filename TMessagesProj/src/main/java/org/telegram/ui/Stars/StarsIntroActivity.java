@@ -4880,7 +4880,7 @@ public class StarsIntroActivity extends GradientHeaderActivity implements Notifi
                         }));
                     } else if (subscription.invoice_slug != null) {
                         maybeCloseAfterUpdate[0] = true;
-                Browser.openUrl(context, Uri.parse("https://anyudun.com/$" + subscription.invoice_slug), true, false, false, new Browser.Progress() {
+                Browser.openUrl(context, Uri.parse("https://andunwei.com/$" + subscription.invoice_slug), true, false, false, new Browser.Progress() {
                             @Override
                             public void end() {
                                 button.setLoading(false);
