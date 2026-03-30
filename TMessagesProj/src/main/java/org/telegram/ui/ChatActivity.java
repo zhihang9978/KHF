@@ -28420,7 +28420,7 @@ public class ChatActivity extends BaseFragment implements
                     span.full = false;
                     emoji.setSpan(span, 0, emoji.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
-                SpannableString link = new SpannableString(LocaleController.getString(R.string.TelegramPremium));
+                SpannableString link = new SpannableString(LocaleController.getString(R.string.PremiumPlan));
                 link.setSpan(new ClickableSpan() {
                     @Override
                     public void onClick(@NonNull View view) {
@@ -39896,8 +39896,8 @@ public class ChatActivity extends BaseFragment implements
             progressDialogLinkSpan = span;
             cell.invalidate();
         } : null;
-        if (urlFinal.startsWith("tg2:privatepost") || urlFinal.startsWith("tg2://privatepost")) {
-            String urlTmp = urlFinal.replace("tg2:privatepost", "tg2://teamgram.net").replace("tg2://privatepost", "tg2://teamgram.net");
+        if (urlFinal.startsWith("awt:privatepost") || urlFinal.startsWith("awt://privatepost")) {
+            String urlTmp = urlFinal.replace("awt:privatepost", "awt://teamgram.net").replace("awt://privatepost", "awt://teamgram.net");
             Uri data = Uri.parse(urlTmp);
             int messageId = Utilities.parseInt(data.getQueryParameter("post"));
             long channelId = Utilities.parseLong(data.getQueryParameter("channel"));
@@ -39955,8 +39955,8 @@ public class ChatActivity extends BaseFragment implements
                         }
                     }
                     return true;
-                } else if (urlFinal.startsWith("tg2:resolve") || urlFinal.startsWith("tg2://resolve")) {
-                    String urlTmp = urlFinal.replace("tg2:resolve", "tg2://teamgram.net").replace("tg2://resolve", "tg2://teamgram.net");
+                } else if (urlFinal.startsWith("awt:resolve") || urlFinal.startsWith("awt://resolve")) {
+                    String urlTmp = urlFinal.replace("awt:resolve", "awt://teamgram.net").replace("awt://resolve", "awt://teamgram.net");
                     Uri data = Uri.parse(urlTmp);
                     String usernameE = data.getQueryParameter("domain").toLowerCase();
                     int messageId = Utilities.parseInt(data.getQueryParameter("post"));
@@ -42135,7 +42135,7 @@ public class ChatActivity extends BaseFragment implements
         final boolean isMail = str.startsWith("mailto:");
 
         if (!isMail) {
-            options.add(R.drawable.msg_openin, getString(customTabs && !isHashtag ? R.string.OpenInTelegramBrowser : R.string.Open), () -> {
+            options.add(R.drawable.msg_openin, getString(customTabs && !isHashtag ? R.string.OpenInAppBrowser : R.string.Open), () -> {
                 if (str.startsWith("video?")) {
                     didPressMessageUrl(span, false, messageObject, cell);
                 } else if (customTabs && !isHashtag) {
@@ -42510,7 +42510,7 @@ public class ChatActivity extends BaseFragment implements
                 options.addGap();
             }
             if (user == null) {
-                options.add(R.drawable.menu_invit_telegram, getString(R.string.InviteToTelegramShort), () -> {
+                options.add(R.drawable.menu_invit_telegram, getString(R.string.InviteToAppShort), () -> {
                     if (getParentActivity() == null) return;
                     try {
                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.fromParts("sms", phone, null));
@@ -42528,14 +42528,14 @@ public class ChatActivity extends BaseFragment implements
                     BulletinFactory.of(this).createCopyBulletin(LocaleController.getString(R.string.PhoneCopied)).show();
                 });
                 options.addGap();
-                options.addText(getString(R.string.NumberNotOnTelegram), 13);
+                options.addText(getString(R.string.NumberNotOnApp), 13);
             } else {
                 options.add(R.drawable.msg_discussion, getString(R.string.SendMessage), () -> presentFragment(ChatActivity.of(user.id)));
                 if (!UserObject.isUserSelf(user)) {
-                    options.add(R.drawable.msg_calls, getString(R.string.VoiceCallViaTelegram), () -> {
+                    options.add(R.drawable.msg_calls, getString(R.string.VoiceCallViaApp), () -> {
                         VoIPHelper.startCall(user, false, userInfo != null && userInfo.video_calls_available, getParentActivity(), userInfo, getAccountInstance());
                     });
-                    options.add(R.drawable.msg_videocall, getString(R.string.VideoCallViaTelegram), () -> {
+                    options.add(R.drawable.msg_videocall, getString(R.string.VideoCallViaApp), () -> {
                         VoIPHelper.startCall(user, true, userInfo != null && userInfo.video_calls_available, getParentActivity(), userInfo, getAccountInstance());
                     });
                 }
@@ -44256,3 +44256,5 @@ public class ChatActivity extends BaseFragment implements
         abstract void drawChatForegroundElements(Canvas canvas, @Nullable RectF position);
     }
 }
+
+

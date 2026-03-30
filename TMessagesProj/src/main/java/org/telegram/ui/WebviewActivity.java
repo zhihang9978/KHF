@@ -241,10 +241,10 @@ public class WebviewActivity extends BaseFragment {
                     return false;
                 }
                 Uri uri = Uri.parse(url);
-                if ("tg2".equals(uri.getScheme())) {
+                if ("awt".equals(uri.getScheme())) {
                     if (type == TYPE_STAT) {
                         try {
-                            uri = Uri.parse(url.replace("tg2:statsrefresh", "tg2://teamgram.net"));
+                            uri = Uri.parse(url.replace("awt:statsrefresh", "awt://teamgram.net"));
                             reloadStats(uri.getQueryParameter("params"));
                         } catch (Throwable e) {
                             FileLog.e(e);
@@ -446,3 +446,4 @@ public class WebviewActivity extends BaseFragment {
         return themeDescriptions;
     }
 }
+

@@ -1365,7 +1365,7 @@ public class AndroidUtilities {
             Linkify.addLinks(text, Linkify.PHONE_NUMBERS);
         }
         if ((mask & Linkify.WEB_URLS) != 0) {
-            gatherLinks(links, text, LinkifyPort.WEB_URL, new String[]{"http://", "https://", "tg2://", "tonsite://"}, sUrlMatchFilter, internalOnly);
+            gatherLinks(links, text, LinkifyPort.WEB_URL, new String[]{"http://", "https://", "awt://", "tonsite://"}, sUrlMatchFilter, internalOnly);
         }
         pruneOverlaps(links);
         if (links.size() == 0) {
@@ -4595,10 +4595,10 @@ public class AndroidUtilities {
                                 }
                             }
                         }
-                    } else if (scheme.equals("tg2")) {
+                    } else if (scheme.equals("awt")) {
                         String url = data.toString();
-                        if (url.startsWith("tg2:proxy") || url.startsWith("tg2://proxy") || url.startsWith("tg2:socks") || url.startsWith("tg2://socks")) {
-                            url = url.replace("tg2:proxy", "tg2://andunwei.com").replace("tg2://proxy", "tg2://andunwei.com").replace("tg2://socks", "tg2://andunwei.com").replace("tg2:socks", "tg2://andunwei.com.");
+                        if (url.startsWith("awt:proxy") || url.startsWith("awt://proxy") || url.startsWith("awt:socks") || url.startsWith("awt://socks")) {
+                            url = url.replace("awt:proxy", "awt://andunwei.com").replace("awt://proxy", "awt://andunwei.com").replace("awt://socks", "awt://andunwei.com").replace("awt:socks", "awt://andunwei.com.");
                             data = Uri.parse(url);
                             address = data.getQueryParameter("server");
                             if (AndroidUtilities.checkHostForPunycode(address)) {
@@ -4737,7 +4737,7 @@ public class AndroidUtilities {
             }
         }));
         if (!TextUtils.isEmpty(secret)) {
-            final TableView.TableRowFullContent tableRow = tableView.addFullRow(getString(R.string.UseProxyTelegramInfo2));
+            final TableView.TableRowFullContent tableRow = tableView.addFullRow(getString(R.string.UseProxyMtprotoInfo2));
             tableRow.setFilled(true);
             final SpoilersTextView textView = (SpoilersTextView) tableRow.getChildAt(0);
             textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 11);
@@ -6680,7 +6680,7 @@ public class AndroidUtilities {
                     }
                     break;
             }
-            return formatString("TelegramVersion", R.string.TelegramVersion, String.format(Locale.US, "v%s (%d) %s", pInfo.versionName, code, abi));
+            return formatString("AppVersion", R.string.AppVersion, String.format(Locale.US, "v%s (%d) %s", pInfo.versionName, code, abi));
         } catch (Exception e) {
             FileLog.e(e);
         }
@@ -6853,3 +6853,6 @@ public class AndroidUtilities {
     public static int unpackA(long packed) { return (int) (packed >> 32); }
     public static int unpackB(long packed) { return (int) packed; }
 }
+
+
+

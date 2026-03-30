@@ -185,7 +185,7 @@ public final class ExtendedDefaultDataSource implements DataSource {
                     dataSource = getFileDataSource();
                 }
             }
-        } else if ("tg2".equals(scheme)) {
+        } else if ("awt".equals(scheme)) {
             dataSource = getStreamDataSource();
         } else if (SCHEME_ASSET.equals(scheme)) {
             dataSource = getAssetDataSource();
@@ -322,3 +322,4 @@ public final class ExtendedDefaultDataSource implements DataSource {
         }
     }
 }
+

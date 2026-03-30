@@ -535,7 +535,7 @@ public class VideoSeekPreviewImage extends View implements NotificationCenter.No
         Utilities.globalQueue.postRunnable(loadRunnable = () -> {
             String scheme = uri.getScheme();
             String path;
-            if ("tg2".equals(scheme)) {
+            if ("awt".equals(scheme)) {
                 int currentAccount = Utilities.parseInt(uri.getQueryParameter("account"));
                 final Object parentObject = FileLoader.getInstance(currentAccount).getParentObject(Utilities.parseInt(uri.getQueryParameter("rid")));
                 final TLRPC.TL_document document = new TLRPC.TL_document();
@@ -697,3 +697,4 @@ public class VideoSeekPreviewImage extends View implements NotificationCenter.No
         }
     }
 }
+

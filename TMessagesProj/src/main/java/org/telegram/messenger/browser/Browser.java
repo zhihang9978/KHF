@@ -652,7 +652,7 @@ public class Browser {
         }
         try {
             url = url.toLowerCase();
-            if (url.startsWith("tg2:passport") || url.startsWith("tg2://passport") || url.startsWith("tg2:secureid") || url.contains("resolve") && url.contains("domain=telegrampassport")) {
+            if (url.startsWith("awt:passport") || url.startsWith("awt://passport") || url.startsWith("awt:secureid") || url.contains("resolve") && url.contains("domain=telegrampassport")) {
                 return true;
             }
         } catch (Throwable ignore) {
@@ -705,7 +705,7 @@ public class Browser {
 
             }
             return true;
-        } else if ("tg2".equals(uri.getScheme())) {
+        } else if ("awt".equals(uri.getScheme())) {
             return true;
         } else if ("andunwei.com".equals(host)) {
             String path = uri.getPath();
@@ -865,3 +865,4 @@ public class Browser {
     }
 
 }
+

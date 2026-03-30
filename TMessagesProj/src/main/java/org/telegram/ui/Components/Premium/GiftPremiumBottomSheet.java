@@ -372,7 +372,7 @@ public class GiftPremiumBottomSheet extends BottomSheetWithRecyclerListView impl
 
     @Override
     protected CharSequence getTitle() {
-        return LocaleController.getString(R.string.GiftTelegramPremiumTitle);
+        return LocaleController.getString(R.string.GiftPremiumPlanTitle);
     }
 
     @Override
@@ -646,3 +646,4 @@ public class GiftPremiumBottomSheet extends BottomSheetWithRecyclerListView impl
         }
     }
 }
+

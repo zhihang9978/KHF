@@ -1257,7 +1257,7 @@ public class VideoPlayer implements Player.Listener, VideoListener, AnalyticsLis
                 "&rid=" + reference +
                 "&name=" + URLEncoder.encode(FileLoader.getDocumentFileName(document), "UTF-8") +
                 "&reference=" + Utilities.bytesToHex(document.file_reference != null ? document.file_reference : new byte[0]);
-            return Uri.parse("tg2://" + MessageObject.getFileName(document) + params);
+            return Uri.parse("awt://" + MessageObject.getFileName(document) + params);
         }
 
         public static VideoUri of(int currentAccount, TLRPC.Document document, TLRPC.Document manifest, int reference, boolean useFileDatabaseQueue) throws UnsupportedEncodingException {
@@ -2030,3 +2030,4 @@ public class VideoPlayer implements Player.Listener, VideoListener, AnalyticsLis
     }
 
 }
+

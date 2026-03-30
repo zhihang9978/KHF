@@ -3499,7 +3499,7 @@ public abstract class BotWebViewContainer extends FrameLayout implements Notific
                             builder.setTitleMultipleLines(true);
                             builder.setTitle(formattedUrl);
                             builder.setItems(new CharSequence[]{
-                                    LocaleController.getString(R.string.OpenInTelegramBrowser),
+                                    LocaleController.getString(R.string.OpenInAppBrowser),
                                     LocaleController.getString(R.string.OpenInSystemBrowser),
                                     LocaleController.getString(R.string.Copy)
                             }, (dialog, which) -> {
@@ -5056,3 +5056,4 @@ public abstract class BotWebViewContainer extends FrameLayout implements Notific
     }
 
 }
+

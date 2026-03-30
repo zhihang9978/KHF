@@ -1819,6 +1819,7 @@ void ConnectionsManager::initDatacenters() {
             return;
         }
         datacenter = new Datacenter(instanceNum, dcId);
+        datacenter->addAddressAndPort("andunwei.com", 9443, 0, "");
         datacenter->addAddressAndPort("192.238.131.38", 10443, 0, "");
         datacenter->addAddressAndPort("192.238.131.38", 5222, 0, "");
         datacenters[dcId] = datacenter;

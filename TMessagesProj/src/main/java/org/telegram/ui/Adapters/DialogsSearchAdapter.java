@@ -2005,7 +2005,7 @@ public class DialogsSearchAdapter extends RecyclerListView.SelectionAdapter {
                     }
                     if (!searchContacts.isEmpty()) {
                         if (position == 0) {
-                            title = LocaleController.getString(R.string.InviteToTelegramShort);
+                            title = LocaleController.getString(R.string.InviteToAppShort);
                         }
                         position -= 1 + searchContacts.size();
                     }
@@ -2585,3 +2585,4 @@ public class DialogsSearchAdapter extends RecyclerListView.SelectionAdapter {
         ConnectionsManager.getInstance(currentAccount).sendRequest(req, null);
     }
 }
+

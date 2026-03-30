@@ -152,9 +152,9 @@ public class UserSelectorBottomSheet extends BottomSheetWithRecyclerListView imp
                             }
                         }
                     }
-                } else if (scheme.equals("tg2")) {
+                } else if (scheme.equals("awt")) {
                     String url = data.toString();
-                    if (url.startsWith("tg2:premium_multigift") || url.startsWith("tg2://premium_multigift")) {
+                    if (url.startsWith("awt:premium_multigift") || url.startsWith("awt://premium_multigift")) {
                         open();
                         return true;
                     }
@@ -1137,9 +1137,9 @@ public class UserSelectorBottomSheet extends BottomSheetWithRecyclerListView imp
                 return getString(R.string.GiftStarsTitle);
             case TYPE_STAR_GIFT:
             case TYPE_PREMIUM:
-                return getString(R.string.GiftTelegramPremiumOrStarsTitle);
+                return getString(R.string.GiftPremiumPlanOrStarsTitle);
         }
-        return getString(R.string.GiftTelegramPremiumTitle);
+        return getString(R.string.GiftPremiumPlanTitle);
     }
 
     @Override
@@ -1234,3 +1234,5 @@ public class UserSelectorBottomSheet extends BottomSheetWithRecyclerListView imp
         }, false, false, resourcesProvider).show();
     }
 }
+
+

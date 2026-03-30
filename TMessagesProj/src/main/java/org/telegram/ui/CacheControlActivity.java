@@ -1670,7 +1670,7 @@ public class CacheControlActivity extends BaseFragment implements NotificationCe
                     subtitle[i].setText(LocaleController.getString(R.string.StorageUsageCalculating));
                 } else if (i == 1) {
                     subtitle[i].setAlpha(0);
-                    subtitle[i].setText(LocaleController.getString(R.string.StorageUsageTelegram));
+                    subtitle[i].setText(LocaleController.getString(R.string.StorageUsageApp));
                     subtitle[i].setVisibility(View.INVISIBLE);
                 } else if (i == 2) {
                     subtitle[i].setText(LocaleController.getString(R.string.StorageCleared2));
@@ -1698,9 +1698,9 @@ public class CacheControlActivity extends BaseFragment implements NotificationCe
             );
             if (hasCache) {
                 if (percent < 0.01f) {
-                    subtitle[1].setText(formatString(R.string.StorageUsageTelegramLess, formatPercent(percent)));
+                    subtitle[1].setText(formatString(R.string.StorageUsageAppLess, formatPercent(percent)));
                 } else {
-                    subtitle[1].setText(formatString(R.string.StorageUsageTelegram, formatPercent(percent)));
+                    subtitle[1].setText(formatString(R.string.StorageUsageApp, formatPercent(percent)));
                 }
                 switchSubtitle(1);
             } else {
@@ -3129,3 +3129,4 @@ public class CacheControlActivity extends BaseFragment implements NotificationCe
         listView.setClipToPadding(false);
     }
 }
+

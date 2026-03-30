@@ -1177,7 +1177,7 @@ public class PrivacySettingsActivity extends BaseFragment implements Notificatio
                         value = getString(feeValue ? R.string.ContactsAndFee : noncontactsValue ? R.string.ContactsAndPremium : R.string.P2PEverybody);
                         textCell.setTextAndValue(getMessagesController().newNoncontactPeersRequirePremiumWithoutOwnpremium && !getMessagesController().starsPaidMessagesAvailable ? getString(R.string.PrivacyMessages) : addPremiumStar(getString(R.string.PrivacyMessages)), value, musicRow != -1);
                     } else if (position == passportRow) {
-                        textCell.setText(getString("TelegramPassport", R.string.TelegramPassport), true);
+                        textCell.setText(getString("AppPassport", R.string.AppPassport), true);
                     } else if (position == deleteAccountRow) {
                         if (getContactsController().getLoadingDeleteInfo()) {
                             showLoading = true;
@@ -1206,7 +1206,7 @@ public class PrivacySettingsActivity extends BaseFragment implements Notificatio
                     } else if (position == secretMapRow) {
                         switch (SharedConfig.mapPreviewType) {
                             case 0:
-                                value = getString("MapPreviewProviderTelegram", R.string.MapPreviewProviderTelegram);
+                                value = getString("MapPreviewProviderApp", R.string.MapPreviewProviderApp);
                                 break;
                             case 1:
                                 value = getString("MapPreviewProviderGoogle", R.string.MapPreviewProviderGoogle);
@@ -1461,3 +1461,4 @@ public class PrivacySettingsActivity extends BaseFragment implements Notificatio
         listView.setClipToPadding(false);
     }
 }
+

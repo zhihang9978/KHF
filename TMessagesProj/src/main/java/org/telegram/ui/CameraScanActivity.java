@@ -1383,7 +1383,7 @@ public class CameraScanActivity extends BaseFragment {
                 Uri uri = Uri.parse(text);
                 String path = uri.getPath().replace("/", "");
             } else {
-                if (currentType == TYPE_QR_LOGIN && !text.startsWith("tg2://login?token=")) {
+                if (currentType == TYPE_QR_LOGIN && !text.startsWith("awt://login?token=")) {
                     onNoQrFound();
                     return null;
                 }
@@ -1432,3 +1432,4 @@ public class CameraScanActivity extends BaseFragment {
         return themeDescriptions;
     }
 }
+

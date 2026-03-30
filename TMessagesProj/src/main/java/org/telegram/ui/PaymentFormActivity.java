@@ -172,7 +172,7 @@ public class PaymentFormActivity extends BaseFragment implements NotificationCen
             "https"
     );
     private final static List<String> BLACKLISTED_PROTOCOLS = Collections.singletonList(
-            "tg2"
+            "awt"
     );
 
     private final static int STEP_SHIPPING_INFORMATION = 0,
@@ -4916,3 +4916,4 @@ public class PaymentFormActivity extends BaseFragment implements NotificationCen
         }
     }
 }
+

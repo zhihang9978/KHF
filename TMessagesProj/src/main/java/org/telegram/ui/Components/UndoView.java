@@ -728,7 +728,7 @@ public class UndoView extends FrameLayout {
                     builder.replace(index2, index2 + 2, "");
                     builder.replace(index1, index1 + 2, "");
                     try {
-                        builder.setSpan(new URLSpanNoUnderline("tg2://openmessage?user_id=" + UserConfig.getInstance(currentAccount).getClientUserId()), index1, index2 - 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        builder.setSpan(new URLSpanNoUnderline("awt://openmessage?user_id=" + UserConfig.getInstance(currentAccount).getClientUserId()), index1, index2 - 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     } catch (Exception e) {
                         FileLog.e(e);
                     }
@@ -1241,7 +1241,7 @@ public class UndoView extends FrameLayout {
             if (index1 >= 0 && index2 >= 0 && index1 != index2) {
                 builder.replace(index2, index2 + 1, "");
                 builder.replace(index1, index1 + 1, "");
-                builder.setSpan(new URLSpanNoUnderline("tg2://settings/folders"), index1, index2 - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                builder.setSpan(new URLSpanNoUnderline("awt://settings/folders"), index1, index2 - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
             subinfoTextView.setText(builder);
             subinfoTextView.setVisibility(VISIBLE);
@@ -1346,7 +1346,7 @@ public class UndoView extends FrameLayout {
             if (index1 >= 0 && index2 >= 0 && index1 != index2) {
                 builder.replace(index2, index2 + 1, "");
                 builder.replace(index1, index1 + 1, "");
-                builder.setSpan(new URLSpanNoUnderline("tg2://settings/themes"), index1, index2 - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                builder.setSpan(new URLSpanNoUnderline("awt://settings/themes"), index1, index2 - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
             subinfoTextView.setText(builder);
             subinfoTextView.setVisibility(VISIBLE);
@@ -1752,3 +1752,4 @@ public class UndoView extends FrameLayout {
         return Theme.getColor(key, resourcesProvider);
     }
 }
+

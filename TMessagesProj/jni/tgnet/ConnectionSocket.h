@@ -18,6 +18,8 @@ class ConnectionsManager;
 class ByteStream;
 class EventObject;
 class ByteArray;
+typedef struct ssl_ctx_st SSL_CTX;
+typedef struct ssl_st SSL;
 
 class ConnectionSocket {
 
@@ -79,6 +81,12 @@ private:
     ByteArray *tempBuffer = nullptr;
     size_t bytesRead = 0;
     int8_t tlsState = 0;
+    bool realTlsEnabled = false;
+    bool realTlsHandshakeCompleted = false;
+    bool realTlsWantWrite = false;
+    std::string realTlsDomain;
+    SSL_CTX *realTlsCtx = nullptr;
+    SSL *realTls = nullptr;
 
     uint8_t proxyAuthState;
 
@@ -86,6 +94,13 @@ private:
     void closeSocket(int32_t reason, int32_t error);
     void openConnectionInternal(bool ipv6);
     void adjustWriteOp();
+    bool initRealTls();
+    int continueRealTlsHandshake();
+    ssize_t readRealTls(void *buffer, size_t length, int *sslError);
+    ssize_t writeRealTls(const void *buffer, size_t length, int *sslError);
+    void cleanupRealTls();
+    void notifyConnectedInternal();
+    bool sendPendingDataInternal();
 
     friend class EventObject;
     friend class ConnectionsManager;

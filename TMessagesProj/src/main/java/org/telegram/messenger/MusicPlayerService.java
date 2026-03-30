@@ -305,9 +305,9 @@ public class MusicPlayerService extends Service implements NotificationCenter.No
             }
             if (fromId != 0) {
                 if (owner.peer_id instanceof TLRPC.TL_peerUser) {
-                    intent.setData(Uri.parse("tg2://openmessage?user_id=" + fromId + "&message_id=" + messageObject.getId()));
+                    intent.setData(Uri.parse("awt://openmessage?user_id=" + fromId + "&message_id=" + messageObject.getId()));
                 } else {
-                    intent.setData(Uri.parse("tg2://openmessage?chat_id=" + fromId + "&message_id=" + messageObject.getId()));
+                    intent.setData(Uri.parse("awt://openmessage?chat_id=" + fromId + "&message_id=" + messageObject.getId()));
                 }
             }
         }
@@ -733,3 +733,4 @@ public class MusicPlayerService extends Service implements NotificationCenter.No
         }
     }
 }
+

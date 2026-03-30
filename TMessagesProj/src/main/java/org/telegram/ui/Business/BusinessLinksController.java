@@ -310,7 +310,7 @@ public class BusinessLinksController {
                     TextUtils.equals(chatLink.link, "https://" + slug) ||
                 TextUtils.equals(chatLink.link, "https://teamgram.me/m/" + slug) ||
                 TextUtils.equals(chatLink.link, "https://andunwei.com/m/" + slug) ||
-                    TextUtils.equals(chatLink.link, "tg2://message?slug=" + slug)) {
+                    TextUtils.equals(chatLink.link, "awt://message?slug=" + slug)) {
                 return chatLink;
             }
         }
@@ -318,3 +318,4 @@ public class BusinessLinksController {
         return null;
     }
 }
+

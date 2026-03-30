@@ -1216,11 +1216,11 @@ public class LinkManager {
             return true;
         }
         if ("faq".equalsIgnoreCase(first)) {
-            Browser.openUrl(activity, LocaleController.getString(R.string.TelegramFaqUrl));
+            Browser.openUrl(activity, LocaleController.getString(R.string.AppFaqUrl));
             return true;
         }
         if ("features".equalsIgnoreCase(first)) {
-            Browser.openUrl(activity, LocaleController.getString(R.string.TelegramFeaturesUrl));
+            Browser.openUrl(activity, LocaleController.getString(R.string.AppFeaturesUrl));
             return true;
         }
         if ("privacy-policy".equalsIgnoreCase(first)) {
@@ -1449,8 +1449,8 @@ public class LinkManager {
                     }
                     break;
                 }
-                case "tg2": {
-                    if (url.startsWith("tg2:resolve") || url.startsWith("tg2://resolve")) {
+                case "awt": {
+                    if (url.startsWith("awt:resolve") || url.startsWith("awt://resolve")) {
                         return !TextUtils.isEmpty(uri.getQueryParameter("appname"));
                     }
                     break;
@@ -1463,3 +1463,5 @@ public class LinkManager {
     }
 
 }
+
+

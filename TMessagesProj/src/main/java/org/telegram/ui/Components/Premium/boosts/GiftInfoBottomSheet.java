@@ -95,10 +95,10 @@ public class GiftInfoBottomSheet extends BottomSheetWithRecyclerListView {
                             }
                         }
                     }
-                } else if (scheme.equals("tg2")) {
+                } else if (scheme.equals("awt")) {
                     String url = data.toString();
                     String lastPathSegment = data.getLastPathSegment();
-                    if (url.startsWith("tg2:giftcode") || url.startsWith("tg2://giftcode")) {
+                    if (url.startsWith("awt:giftcode") || url.startsWith("awt://giftcode")) {
                         if (lastPathSegment != null) {
                             show(LaunchActivity.getLastFragment(), lastPathSegment, progress);
                             return true;
@@ -192,3 +192,4 @@ public class GiftInfoBottomSheet extends BottomSheetWithRecyclerListView {
         };
     }
 }
+

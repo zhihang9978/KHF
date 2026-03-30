@@ -217,8 +217,8 @@ public class StorageUsageView extends FrameLayout {
                 textSettingsCell.setVisibility(VISIBLE);
                 telegramCacheTextView.setVisibility(View.VISIBLE);
                 telegramDatabaseTextView.setVisibility(GONE);
-                textSettingsCell.setTextAndValue(LocaleController.getString(R.string.ClearTelegramCache), AndroidUtilities.formatFileSize(totalSize), true);
-                telegramCacheTextView.setText(LocaleController.formatString("TelegramCacheSize", R.string.TelegramCacheSize, AndroidUtilities.formatFileSize(totalSize + database)));
+                textSettingsCell.setTextAndValue(LocaleController.getString(R.string.ClearAppCache), AndroidUtilities.formatFileSize(totalSize), true);
+                telegramCacheTextView.setText(LocaleController.formatString("AppCacheSize", R.string.AppCacheSize, AndroidUtilities.formatFileSize(totalSize + database)));
             } else {
                 telegramCacheTextView.setVisibility(View.GONE);
                 telegramDatabaseTextView.setVisibility(VISIBLE);
@@ -378,3 +378,4 @@ public class StorageUsageView extends FrameLayout {
         }
     }
 }
+

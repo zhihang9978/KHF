@@ -590,7 +590,7 @@ public class VideoScreenPreview extends FrameLayout implements PagerHeaderView, 
                             "&rid=" + FileLoader.getInstance(currentAccount).getFileReference(MediaDataController.getInstance(currentAccount).getPremiumPromo()) +
                             "&name=" + URLEncoder.encode(FileLoader.getDocumentFileName(document), "UTF-8") +
                             "&reference=" + Utilities.bytesToHex(document.file_reference != null ? document.file_reference : new byte[0]);
-                    uri = Uri.parse("tg2://" + attachFileName + params);
+                    uri = Uri.parse("awt://" + attachFileName + params);
                 } catch (Exception exception) {
                     uri = null;
                 }
@@ -622,3 +622,4 @@ public class VideoScreenPreview extends FrameLayout implements PagerHeaderView, 
         }
     }
 }
+

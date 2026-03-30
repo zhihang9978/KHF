@@ -17,6 +17,9 @@
 #include <netdb.h>
 #include <openssl/rand.h>
 #include <openssl/hmac.h>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+#include <openssl/x509.h>
 #include <algorithm>
 #include <utility>
 #include <openssl/bn.h>
@@ -454,6 +457,7 @@ ConnectionSocket::ConnectionSocket(int32_t instance) {
 }
 
 ConnectionSocket::~ConnectionSocket() {
+    cleanupRealTls();
     if (outgoingByteStream != nullptr) {
         delete outgoingByteStream;
         outgoingByteStream = nullptr;
@@ -472,6 +476,139 @@ ConnectionSocket::~ConnectionSocket() {
     }
 }
 
+bool ConnectionSocket::initRealTls() {
+    if (!realTlsEnabled) {
+        return true;
+    }
+    if (realTls != nullptr) {
+        return true;
+    }
+
+    realTlsCtx = SSL_CTX_new(TLS_client_method());
+    if (realTlsCtx == nullptr) {
+        if (LOGS_ENABLED) DEBUG_E("connection(%p) unable to create SSL_CTX", this);
+        return false;
+    }
+
+    SSL_CTX_set_verify(realTlsCtx, SSL_VERIFY_PEER, nullptr);
+    if (SSL_CTX_set_default_verify_paths(realTlsCtx) != 1) {
+        SSL_CTX_load_verify_locations(realTlsCtx, nullptr, "/system/etc/security/cacerts");
+    }
+
+    realTls = SSL_new(realTlsCtx);
+    if (realTls == nullptr) {
+        if (LOGS_ENABLED) DEBUG_E("connection(%p) unable to create SSL", this);
+        cleanupRealTls();
+        return false;
+    }
+
+    if (!realTlsDomain.empty()) {
+        if (SSL_set_tlsext_host_name(realTls, realTlsDomain.c_str()) != 1) {
+            if (LOGS_ENABLED) DEBUG_E("connection(%p) unable to set TLS SNI", this);
+            cleanupRealTls();
+            return false;
+        }
+        X509_VERIFY_PARAM *param = SSL_get0_param(realTls);
+        if (param == nullptr || X509_VERIFY_PARAM_set1_host(param, realTlsDomain.c_str(), 0) != 1) {
+            if (LOGS_ENABLED) DEBUG_E("connection(%p) unable to set TLS hostname verification", this);
+            cleanupRealTls();
+            return false;
+        }
+    }
+
+    if (SSL_set_fd(realTls, socketFd) != 1) {
+        if (LOGS_ENABLED) DEBUG_E("connection(%p) unable to bind TLS socket", this);
+        cleanupRealTls();
+        return false;
+    }
+
+    SSL_set_connect_state(realTls);
+    realTlsWantWrite = true;
+    return true;
+}
+
+int ConnectionSocket::continueRealTlsHandshake() {
+    if (!realTlsEnabled) {
+        return 1;
+    }
+    if (realTlsHandshakeCompleted) {
+        return 1;
+    }
+    if (!initRealTls()) {
+        return -1;
+    }
+
+    ERR_clear_error();
+    int result = SSL_do_handshake(realTls);
+    if (result == 1) {
+        realTlsHandshakeCompleted = true;
+        realTlsWantWrite = false;
+        if (LOGS_ENABLED) DEBUG_D("connection(%p) real TLS handshake complete", this);
+        return 1;
+    }
+
+    int sslError = SSL_get_error(realTls, result);
+    if (sslError == SSL_ERROR_WANT_READ) {
+        realTlsWantWrite = false;
+        return 0;
+    }
+    if (sslError == SSL_ERROR_WANT_WRITE) {
+        realTlsWantWrite = true;
+        return 0;
+    }
+
+    if (LOGS_ENABLED) DEBUG_E("connection(%p) real TLS handshake failed, sslError=%d verify=%ld", this, sslError, SSL_get_verify_result(realTls));
+    cleanupRealTls();
+    return -1;
+}
+
+ssize_t ConnectionSocket::readRealTls(void *buffer, size_t length, int *sslError) {
+    ERR_clear_error();
+    int result = SSL_read(realTls, buffer, static_cast<int>(length));
+    if (result > 0) {
+        realTlsWantWrite = false;
+        *sslError = 0;
+        return result;
+    }
+    *sslError = SSL_get_error(realTls, result);
+    if (*sslError == SSL_ERROR_WANT_WRITE) {
+        realTlsWantWrite = true;
+    } else if (*sslError == SSL_ERROR_WANT_READ) {
+        realTlsWantWrite = false;
+    }
+    return result;
+}
+
+ssize_t ConnectionSocket::writeRealTls(const void *buffer, size_t length, int *sslError) {
+    ERR_clear_error();
+    int result = SSL_write(realTls, buffer, static_cast<int>(length));
+    if (result > 0) {
+        realTlsWantWrite = false;
+        *sslError = 0;
+        return result;
+    }
+    *sslError = SSL_get_error(realTls, result);
+    if (*sslError == SSL_ERROR_WANT_WRITE) {
+        realTlsWantWrite = true;
+    } else if (*sslError == SSL_ERROR_WANT_READ) {
+        realTlsWantWrite = false;
+    }
+    return result;
+}
+
+void ConnectionSocket::cleanupRealTls() {
+    realTlsHandshakeCompleted = false;
+    realTlsWantWrite = false;
+    if (realTls != nullptr) {
+        SSL_free(realTls);
+        realTls = nullptr;
+    }
+    if (realTlsCtx != nullptr) {
+        SSL_CTX_free(realTlsCtx);
+        realTlsCtx = nullptr;
+    }
+}
+
 void ConnectionSocket::openConnection(std::string address, uint16_t port, std::string secret, bool ipv6, int32_t networkType) {
     currentNetworkType = networkType;
     isIpv6 = ipv6;
@@ -480,6 +617,9 @@ void ConnectionSocket::openConnection(std::string address, uint16_t port, std::s
     waitingForHostResolve = "";
     adjustWriteOpAfterResolve = false;
     tlsState = 0;
+    cleanupRealTls();
+    realTlsEnabled = port == 9443;
+    realTlsDomain = realTlsEnabled ? address : "";
     ConnectionsManager::getInstance(instanceNum).attachConnection(this);
 
     memset(&socketAddress, 0, sizeof(sockaddr_in));
@@ -584,9 +724,31 @@ void ConnectionSocket::openConnection(std::string address, uint16_t port, std::s
             socketAddress.sin_family = AF_INET;
             socketAddress.sin_port = htons(port);
             if (inet_pton(AF_INET, address.c_str(), &socketAddress.sin_addr.s_addr) != 1) {
-                if (LOGS_ENABLED) DEBUG_E("connection(%p) bad ipv4 %s", this, address.c_str());
-                closeSocket(1, -1);
-                return;
+                if (LOGS_ENABLED) DEBUG_D("connection(%p) not ipv4 address %s", this, address.c_str());
+                {
+#ifdef USE_DELEGATE_HOST_RESOLVE
+                    waitingForHostResolve = address;
+                    ConnectionsManager::getInstance(instanceNum).delegate->getHostByName(address, instanceNum, this);
+                    return;
+#else
+                    struct hostent *he;
+                    if ((he = gethostbyname(address.c_str())) == nullptr) {
+                        if (LOGS_ENABLED) DEBUG_E("connection(%p) can't resolve host %s address", this, address.c_str());
+                        closeSocket(1, -1);
+                        return;
+                    }
+                    struct in_addr **addr_list = (struct in_addr **) he->h_addr_list;
+                    if (addr_list[0] != nullptr) {
+                        socketAddress.sin_addr.s_addr = addr_list[0]->s_addr;
+                        if (LOGS_ENABLED) DEBUG_D("connection(%p) resolved host %s address %x", this, address.c_str(), addr_list[0]->s_addr);
+                        ipv6 = false;
+                    } else {
+                        if (LOGS_ENABLED) DEBUG_E("connection(%p) can't resolve host %s address", this, address.c_str());
+                        closeSocket(1, -1);
+                        return;
+                    }
+#endif
+                }
             }
         }
         uint32_t tempBuffLength;
@@ -607,6 +769,11 @@ void ConnectionSocket::openConnection(std::string address, uint16_t port, std::s
                 tempBuffer = new ByteArray(tempBuffLength);
             }
         }
+    }
+
+    if (proxyAuthState >= 10) {
+        realTlsEnabled = false;
+        realTlsDomain.clear();
     }
 
     openConnectionInternal(ipv6);
@@ -649,6 +816,88 @@ void ConnectionSocket::openConnectionInternal(bool ipv6) {
     }
 }
 
+void ConnectionSocket::notifyConnectedInternal() {
+    if (!onConnectedSent) {
+        lastEventTime = ConnectionsManager::getInstance(instanceNum).getCurrentTimeMonotonicMillis();
+        if (LOGS_ENABLED) DEBUG_D("connection(%p) reset last event time, on connect", this);
+        onConnected();
+        onConnectedSent = true;
+    }
+}
+
+bool ConnectionSocket::sendPendingDataInternal() {
+    NativeByteBuffer *buffer = ConnectionsManager::getInstance(instanceNum).networkBuffer;
+    buffer->clear();
+    outgoingByteStream->get(buffer);
+    buffer->flip();
+
+    uint32_t remaining = buffer->remaining();
+    if (!remaining) {
+        return true;
+    }
+
+    ssize_t sentLength;
+    if (tlsState != 0) {
+        if (remaining > 2878) {
+            remaining = 2878;
+        }
+        size_t headersSize = 0;
+        if (tlsState == 1) {
+            static std::string header1 = std::string("\x14\x03\x03\x00\x01\x01", 6);
+            std::memcpy(tempBuffer->bytes, header1.data(), header1.size());
+            headersSize += header1.size();
+            tlsState = 2;
+        }
+        static std::string header2 = std::string("\x17\x03\x03", 3);
+        std::memcpy(tempBuffer->bytes + headersSize, header2.data(), header2.size());
+        headersSize += header2.size();
+
+        tempBuffer->bytes[headersSize] = static_cast<uint8_t>((remaining >> 8) & 0xff);
+        tempBuffer->bytes[headersSize + 1] = static_cast<uint8_t>(remaining & 0xff);
+        headersSize += 2;
+
+        std::memcpy(tempBuffer->bytes + headersSize, buffer->bytes(), remaining);
+
+        if ((sentLength = send(socketFd, tempBuffer->bytes, headersSize + remaining, 0)) < headersSize) {
+            if (LOGS_ENABLED) DEBUG_E("connection(%p) send failed", this);
+            closeSocket(1, -1);
+            return false;
+        }
+        if (ConnectionsManager::getInstance(instanceNum).delegate != nullptr) {
+            ConnectionsManager::getInstance(instanceNum).delegate->onBytesSent((int32_t) sentLength, currentNetworkType, instanceNum);
+        }
+        outgoingByteStream->discard((uint32_t) (sentLength - headersSize));
+        adjustWriteOp();
+        return true;
+    }
+
+    if (realTlsEnabled && realTlsHandshakeCompleted) {
+        int sslError = 0;
+        if ((sentLength = writeRealTls(buffer->bytes(), remaining, &sslError)) <= 0) {
+            if (sslError == SSL_ERROR_WANT_READ || sslError == SSL_ERROR_WANT_WRITE) {
+                adjustWriteOp();
+                return true;
+            }
+            if (LOGS_ENABLED) DEBUG_E("connection(%p) real TLS write failed, sslError=%d", this, sslError);
+            closeSocket(1, sslError);
+            return false;
+        }
+    } else {
+        if ((sentLength = send(socketFd, buffer->bytes(), remaining, 0)) < 0) {
+            if (LOGS_ENABLED) DEBUG_D("connection(%p) send failed", this);
+            closeSocket(1, -1);
+            return false;
+        }
+    }
+
+    if (ConnectionsManager::getInstance(instanceNum).delegate != nullptr) {
+        ConnectionsManager::getInstance(instanceNum).delegate->onBytesSent((int32_t) sentLength, currentNetworkType, instanceNum);
+    }
+    outgoingByteStream->discard((uint32_t) sentLength);
+    adjustWriteOp();
+    return true;
+}
+
 int32_t ConnectionSocket::checkSocketError(int32_t *error) {
     if (socketFd < 0) {
         return true;
@@ -667,6 +916,7 @@ int32_t ConnectionSocket::checkSocketError(int32_t *error) {
 void ConnectionSocket::closeSocket(int32_t reason, int32_t error) {
     lastEventTime = ConnectionsManager::getInstance(instanceNum).getCurrentTimeMonotonicMillis();
     ConnectionsManager::getInstance(instanceNum).detachConnection(this);
+    cleanupRealTls();
     if (socketFd >= 0) {
         epoll_ctl(ConnectionsManager::getInstance(instanceNum).epolFd, EPOLL_CTL_DEL, socketFd, nullptr);
         if (close(socketFd) != 0) {
@@ -678,6 +928,8 @@ void ConnectionSocket::closeSocket(int32_t reason, int32_t error) {
     adjustWriteOpAfterResolve = false;
     proxyAuthState = 0;
     tlsState = 0;
+    realTlsEnabled = false;
+    realTlsDomain.clear();
     onConnectedSent = false;
     outgoingByteStream->clean();
     if (tlsBuffer != nullptr) {
@@ -694,14 +946,46 @@ void ConnectionSocket::onEvent(uint32_t events) {
             closeSocket(1, error);
             return;
         } else {
+            if (proxyAuthState == 0 && realTlsEnabled && !realTlsHandshakeCompleted) {
+                int handshakeState = continueRealTlsHandshake();
+                if (handshakeState < 0) {
+                    closeSocket(1, -1);
+                    return;
+                }
+                if (handshakeState == 1) {
+                    notifyConnectedInternal();
+                    if (!sendPendingDataInternal()) {
+                        return;
+                    }
+                } else {
+                    adjustWriteOp();
+                    return;
+                }
+            }
             ssize_t readCount;
             NativeByteBuffer *buffer = ConnectionsManager::getInstance(instanceNum).networkBuffer;
             while (true) {
                 buffer->rewind();
-                readCount = recv(socketFd, buffer->bytes(), READ_BUFFER_SIZE, 0);
+                int tlsError = 0;
+                if (realTlsEnabled && realTlsHandshakeCompleted) {
+                    readCount = readRealTls(buffer->bytes(), READ_BUFFER_SIZE, &tlsError);
+                } else {
+                    readCount = recv(socketFd, buffer->bytes(), READ_BUFFER_SIZE, 0);
+                }
                 int err = errno;
 //                if (LOGS_ENABLED) DEBUG_D("connection(%p) recv resulted with %d, errno=%d", this, readCount, err);
                 if (readCount < 0) {
+                    if (realTlsEnabled && realTlsHandshakeCompleted) {
+                        if (tlsError == SSL_ERROR_WANT_READ || tlsError == SSL_ERROR_WANT_WRITE) {
+                            if (tlsError == SSL_ERROR_WANT_WRITE) {
+                                adjustWriteOp();
+                            }
+                            break;
+                        }
+                        closeSocket(1, tlsError);
+                        if (LOGS_ENABLED) DEBUG_E("connection(%p) real TLS recv failed, sslError=%d", this, tlsError);
+                        return;
+                    }
                     if (err == EAGAIN) {
                         break;
                     }
@@ -900,6 +1184,10 @@ void ConnectionSocket::onEvent(uint32_t events) {
                         }
                     }
                 } else if (readCount == 0) {
+                    if (realTlsEnabled && realTlsHandshakeCompleted) {
+                        closeSocket(1, 0);
+                        return;
+                    }
                     break;
                 }
 //                if (readCount != READ_BUFFER_SIZE) {
@@ -996,65 +1284,20 @@ void ConnectionSocket::onEvent(uint32_t events) {
                     }
                 }
             } else {
-                if (!onConnectedSent) {
-                    lastEventTime = ConnectionsManager::getInstance(instanceNum).getCurrentTimeMonotonicMillis();
-                    if (LOGS_ENABLED) DEBUG_D("connection(%p) reset last event time, on connect", this);
-                    onConnected();
-                    onConnectedSent = true;
-                }
-                NativeByteBuffer *buffer = ConnectionsManager::getInstance(instanceNum).networkBuffer;
-                buffer->clear();
-                outgoingByteStream->get(buffer);
-                buffer->flip();
-
-                uint32_t remaining = buffer->remaining();
-                if (remaining) {
-                    ssize_t sentLength;
-                    if (tlsState != 0) {
-                        if (remaining > 2878) {
-                            remaining = 2878;
-                        }
-                        size_t headersSize = 0;
-                        if (tlsState == 1) {
-                            static std::string header1 = std::string("\x14\x03\x03\x00\x01\x01", 6);
-                            std::memcpy(tempBuffer->bytes, header1.data(), header1.size());
-                            headersSize += header1.size();
-                            tlsState = 2;
-                        }
-                        static std::string header2 = std::string("\x17\x03\x03", 3);
-                        std::memcpy(tempBuffer->bytes + headersSize, header2.data(), header2.size());
-                        headersSize += header2.size();
-
-                        tempBuffer->bytes[headersSize] = static_cast<uint8_t>((remaining >> 8) & 0xff);
-                        tempBuffer->bytes[headersSize + 1] = static_cast<uint8_t>(remaining & 0xff);
-                        headersSize += 2;
-
-                        std::memcpy(tempBuffer->bytes + headersSize, buffer->bytes(), remaining);
-
-                        if ((sentLength = send(socketFd, tempBuffer->bytes, headersSize + remaining, 0)) < headersSize) {
-                            if (LOGS_ENABLED) DEBUG_E("connection(%p) send failed", this);
-                            closeSocket(1, -1);
-                            return;
-                        } else {
-                            if (ConnectionsManager::getInstance(instanceNum).delegate != nullptr) {
-                                ConnectionsManager::getInstance(instanceNum).delegate->onBytesSent((int32_t) sentLength, currentNetworkType, instanceNum);
-                            }
-                            outgoingByteStream->discard((uint32_t) (sentLength - headersSize));
-                            adjustWriteOp();
-                        }
-                    } else {
-                        if ((sentLength = send(socketFd, buffer->bytes(), remaining, 0)) < 0) {
-                            if (LOGS_ENABLED) DEBUG_D("connection(%p) send failed", this);
-                            closeSocket(1, -1);
-                            return;
-                        } else {
-                            if (ConnectionsManager::getInstance(instanceNum).delegate != nullptr) {
-                                ConnectionsManager::getInstance(instanceNum).delegate->onBytesSent((int32_t) sentLength, currentNetworkType, instanceNum);
-                            }
-                            outgoingByteStream->discard((uint32_t) sentLength);
-                            adjustWriteOp();
-                        }
+                if (realTlsEnabled && !realTlsHandshakeCompleted) {
+                    int handshakeState = continueRealTlsHandshake();
+                    if (handshakeState < 0) {
+                        closeSocket(1, -1);
+                        return;
                     }
+                    if (handshakeState == 0) {
+                        adjustWriteOp();
+                        return;
+                    }
+                }
+                notifyConnectedInternal();
+                if (!sendPendingDataInternal()) {
+                    return;
                 }
             }
         }
@@ -1092,7 +1335,7 @@ void ConnectionSocket::adjustWriteOp() {
         return;
     }
     eventMask.events = EPOLLIN | EPOLLRDHUP | EPOLLERR | EPOLLET;
-    if (proxyAuthState == 0 && (outgoingByteStream->hasData() || !onConnectedSent) || proxyAuthState == 1 || proxyAuthState == 3 || proxyAuthState == 5 || proxyAuthState == 10) {
+    if (proxyAuthState == 0 && (outgoingByteStream->hasData() || !onConnectedSent || realTlsWantWrite) || proxyAuthState == 1 || proxyAuthState == 3 || proxyAuthState == 5 || proxyAuthState == 10) {
         eventMask.events |= EPOLLOUT;
     }
     eventMask.data.ptr = eventObject;
@@ -1153,10 +1396,27 @@ void ConnectionSocket::onHostNameResolved(std::string host, std::string ip, bool
     ConnectionsManager::getInstance(instanceNum).scheduleTask([&, host, ip, ipv6] {
         if (waitingForHostResolve == host) {
             waitingForHostResolve = "";
-            if (ip.empty() || inet_pton(AF_INET, ip.c_str(), &socketAddress.sin_addr.s_addr) != 1) {
+            if (ip.empty()) {
                 if (LOGS_ENABLED) DEBUG_E("connection(%p) can't resolve host %s address via delegate", this, host.c_str());
                 closeSocket(1, -1);
                 return;
+            }
+            if (ipv6) {
+                socketAddress6.sin6_family = AF_INET6;
+                socketAddress6.sin6_port = htons(currentPort);
+                if (inet_pton(AF_INET6, ip.c_str(), &socketAddress6.sin6_addr.s6_addr) != 1) {
+                    if (LOGS_ENABLED) DEBUG_E("connection(%p) invalid ipv6 %s for host %s via delegate", this, ip.c_str(), host.c_str());
+                    closeSocket(1, -1);
+                    return;
+                }
+            } else {
+                socketAddress.sin_family = AF_INET;
+                socketAddress.sin_port = htons(currentPort);
+                if (inet_pton(AF_INET, ip.c_str(), &socketAddress.sin_addr.s_addr) != 1) {
+                    if (LOGS_ENABLED) DEBUG_E("connection(%p) invalid ipv4 %s for host %s via delegate", this, ip.c_str(), host.c_str());
+                    closeSocket(1, -1);
+                    return;
+                }
             }
             if (LOGS_ENABLED) DEBUG_D("connection(%p) resolved host %s address %s via delegate", this, host.c_str(), ip.c_str());
             openConnectionInternal(ipv6);

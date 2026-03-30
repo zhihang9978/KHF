@@ -297,10 +297,11 @@ public class FileStreamLoadOperation extends BaseDataSource implements FileLoadO
                 "&rid=" + FileLoader.getInstance(currentAccount).getFileReference(parent) +
                 "&name=" + URLEncoder.encode(FileLoader.getDocumentFileName(document), "UTF-8") +
                 "&reference=" + Utilities.bytesToHex(document.file_reference != null ? document.file_reference : new byte[0]);
-            return Uri.parse("tg2://" + attachFileName + params);
+            return Uri.parse("awt://" + attachFileName + params);
         } catch (UnsupportedEncodingException e) {
             FileLog.e(e);
         }
         return null;
     }
 }
+

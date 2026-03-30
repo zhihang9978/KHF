@@ -279,7 +279,7 @@ public class ProxySettingsActivity extends BaseFragment {
             if (a == 0) {
                 typeCell[a].setText(LocaleController.getString(R.string.UseProxySocks5), a == currentType, true);
             } else {
-                typeCell[a].setText(LocaleController.getString(R.string.UseProxyTelegram), a == currentType, false);
+                typeCell[a].setText(LocaleController.getString(R.string.UseProxyMTProto), a == currentType, false);
             }
             linearLayout2.addView(typeCell[a], LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, 50));
             typeCell[a].setOnClickListener(typeCellClickListener);
@@ -440,9 +440,9 @@ public class ProxySettingsActivity extends BaseFragment {
             bottomCells[i] = new TextInfoPrivacyCell(context);
             bottomCells[i].setBackground(Theme.getThemedDrawableByKey(context, R.drawable.greydivider_bottom, Theme.key_windowBackgroundGrayShadow));
             if (i == 0) {
-                bottomCells[i].setText(LocaleController.getString(R.string.UseProxyInfo));
+                bottomCells[i].setText(LocaleController.getString(R.string.UseProxyMtprotoInfo));
             } else {
-                bottomCells[i].setText(LocaleController.getString(R.string.UseProxyTelegramInfo) + "\n\n" + LocaleController.getString(R.string.UseProxyTelegramInfo2));
+                bottomCells[i].setText(LocaleController.getString(R.string.UseProxyMtprotoInfo) + "\n\n" + LocaleController.getString(R.string.UseProxyMtprotoInfo2));
                 bottomCells[i].setVisibility(View.GONE);
             }
             linearLayout2.addView(bottomCells[i], LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
@@ -594,7 +594,7 @@ public class ProxySettingsActivity extends BaseFragment {
         if (clipText != null) {
             String[] params = null;
 
-            final String[] socksStrings = {"andunwei.com/socks?", "tg2://socks?"};
+            final String[] socksStrings = {"andunwei.com/socks?", "awt://socks?"};
             for (int i = 0; i < socksStrings.length; i++) {
                 final int index = clipText.indexOf(socksStrings[i]);
                 if (index >= 0) {
@@ -605,7 +605,7 @@ public class ProxySettingsActivity extends BaseFragment {
             }
 
             if (params == null) {
-                final String[] proxyStrings = {"andunwei.com/proxy?", "tg2://proxy?"};
+                final String[] proxyStrings = {"andunwei.com/proxy?", "awt://proxy?"};
                 for (int i = 0; i < proxyStrings.length; i++) {
                     final int index = clipText.indexOf(proxyStrings[i]);
                     if (index >= 0) {
@@ -839,3 +839,6 @@ public class ProxySettingsActivity extends BaseFragment {
         return arrayList;
     }
 }
+
+
+

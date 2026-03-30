@@ -1446,7 +1446,7 @@ public class GiftSheet extends BottomSheetWithRecyclerListView implements Notifi
             cardBackground.setPattern(null);
             cardBackground.setStrokeColors(null);
             titleView.setText(LocaleController.formatPluralString("Gift2Months", months));
-            subtitleView.setText(getString(R.string.TelegramPremiumShort));
+            subtitleView.setText(getString(R.string.PremiumPlanShort));
             titleView.setVisibility(View.VISIBLE);
             subtitleView.setVisibility(View.VISIBLE);
             imageView.setTranslationY(-dp(8));
@@ -2942,3 +2942,4 @@ public class GiftSheet extends BottomSheetWithRecyclerListView implements Notifi
     }
 
 }
+

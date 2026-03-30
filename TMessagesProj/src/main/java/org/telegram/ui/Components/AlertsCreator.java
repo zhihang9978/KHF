@@ -1344,7 +1344,7 @@ public class AlertsCreator {
         ArrayList<Integer> types = new ArrayList<>();
         int providers = MessagesController.getInstance(currentAccount).availableMapProviders;
         if ((providers & 1) != 0) {
-            arrayList.add(LocaleController.getString(R.string.MapPreviewProviderTelegram));
+            arrayList.add(LocaleController.getString(R.string.MapPreviewProviderApp));
             types.add(0);
         }
         if ((providers & 2) != 0) {
@@ -8276,3 +8276,4 @@ public class AlertsCreator {
         return sheet[0] = builder.create();
     }
 }
+

@@ -401,7 +401,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                     Uri uri = intent.getData();
                     if (uri != null) {
                         String url = uri.toString().toLowerCase();
-                        isProxy = url.startsWith("tg2:proxy") || url.startsWith("tg2://proxy") || url.startsWith("tg2:socks") || url.startsWith("tg2://socks");
+                        isProxy = url.startsWith("awt:proxy") || url.startsWith("awt://proxy") || url.startsWith("awt:socks") || url.startsWith("awt://socks");
                     }
                 }
             }
@@ -1716,7 +1716,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                     if (error) {
                         Toast.makeText(this, "Unsupported content", Toast.LENGTH_SHORT).show();
                     }
-                } else if ("org.telegram.messenger.CREATE_STICKER_PACK".equals(intent.getAction())) {
+                } else if ("com.rivermint.pulsechat.CREATE_STICKER_PACK".equals(intent.getAction())) {
                     try {
                         importingStickers = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
                         importingStickersEmoji = intent.getStringArrayListExtra("STICKER_EMOJIS");
@@ -2222,9 +2222,9 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                                     }
                                     break;
                                 }
-                                case "tg2": {
+                                case "awt": {
                                     String url = data.toString();
-                                    if (url.startsWith("tg2:premium_offer") || url.startsWith("tg2://premium_offer")) {
+                                    if (url.startsWith("awt:premium_offer") || url.startsWith("awt://premium_offer")) {
                                         String finalUrl = url;
                                         AndroidUtilities.runOnUIThread(() -> {
                                         if (!actionBarLayout.getFragmentStack().isEmpty()) {
@@ -2232,8 +2232,8 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                                             Uri uri = Uri.parse(finalUrl);
                                             fragment.presentFragment(new PremiumPreviewFragment(uri.getQueryParameter("ref")));
                                         }});
-                                    } else if (url.startsWith("tg2:resolve") || url.startsWith("tg2://resolve")) {
-                                        url = url.replace("tg2:resolve", "tg2://andunwei.com").replace("tg2://resolve", "tg2://andunwei.com");
+                                    } else if (url.startsWith("awt:resolve") || url.startsWith("awt://resolve")) {
+                                        url = url.replace("awt:resolve", "awt://andunwei.com").replace("awt://resolve", "awt://andunwei.com");
                                         data = Uri.parse(url);
                                         username = data.getQueryParameter("domain");
                                         if (username == null) {
@@ -2320,24 +2320,24 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                                                 }
                                             }
                                         }
-                                    } else if (url.startsWith("tg2:invoice") || url.startsWith("tg2://invoice")) {
-                                        url = url.replace("tg2:invoice", "tg2://invoice");
+                                    } else if (url.startsWith("awt:invoice") || url.startsWith("awt://invoice")) {
+                                        url = url.replace("awt:invoice", "awt://invoice");
                                         data = Uri.parse(url);
                                         inputInvoiceSlug = data.getQueryParameter("slug");
-                                    } else if (url.startsWith("tg2:stargift_auction") || url.startsWith("tg2://stargift_auction")) {
-                                        url = url.replace("tg2:stargift_auction", "tg2://stargift_auction");
+                                    } else if (url.startsWith("awt:stargift_auction") || url.startsWith("awt://stargift_auction")) {
+                                        url = url.replace("awt:stargift_auction", "awt://stargift_auction");
                                         data = Uri.parse(url);
                                         auctionSlug = data.getQueryParameter("slug");
-                                    } else if (url.startsWith("tg2:nft") || url.startsWith("tg2://nft")) {
-                                        url = url.replace("tg2:nft", "tg2://nft");
+                                    } else if (url.startsWith("awt:nft") || url.startsWith("awt://nft")) {
+                                        url = url.replace("awt:nft", "awt://nft");
                                         data = Uri.parse(url);
                                         uniqueGiftSlug = data.getQueryParameter("slug");
-                                    } else if (url.startsWith("tg2:contact") || url.startsWith("tg2://contact")) {
-                                        url = url.replace("tg2:contact", "tg2://contact");
+                                    } else if (url.startsWith("awt:contact") || url.startsWith("awt://contact")) {
+                                        url = url.replace("awt:contact", "awt://contact");
                                         data = Uri.parse(url);
                                         contactToken = data.getQueryParameter("token");
-                                    } else if (url.startsWith("tg2:privatepost") || url.startsWith("tg2://privatepost")) {
-                                        url = url.replace("tg2:privatepost", "tg2://andunwei.com").replace("tg2://privatepost", "tg2://andunwei.com");
+                                    } else if (url.startsWith("awt:privatepost") || url.startsWith("awt://privatepost")) {
+                                        url = url.replace("awt:privatepost", "awt://andunwei.com").replace("awt://privatepost", "awt://andunwei.com");
                                         data = Uri.parse(url);
                                         messageId = Utilities.parseInt(data.getQueryParameter("post"));
                                         channelId = Utilities.parseLong(data.getQueryParameter("channel"));
@@ -2359,8 +2359,8 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                                         if (commentId == 0) {
                                             commentId = null;
                                         }
-                                    } else if (url.startsWith("tg2:bg") || url.startsWith("tg2://bg")) {
-                                        url = url.replace("tg2:bg", "tg2://andunwei.com").replace("tg2://bg", "tg2://andunwei.com");
+                                    } else if (url.startsWith("awt:bg") || url.startsWith("awt://bg")) {
+                                        url = url.replace("awt:bg", "awt://andunwei.com").replace("awt://bg", "awt://andunwei.com");
                                         data = Uri.parse(url);
                                         wallPaper = new TLRPC.TL_wallPaper();
                                         wallPaper.settings = new TLRPC.TL_wallPaperSettings();
@@ -2443,20 +2443,20 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
 
                                             }
                                         }
-                                    } else if (url.startsWith("tg2:join") || url.startsWith("tg2://join")) {
-                                        url = url.replace("tg2:join", "tg2://andunwei.com").replace("tg2://join", "tg2://andunwei.com");
+                                    } else if (url.startsWith("awt:join") || url.startsWith("awt://join")) {
+                                        url = url.replace("awt:join", "awt://andunwei.com").replace("awt://join", "awt://andunwei.com");
                                         data = Uri.parse(url);
                                         group = data.getQueryParameter("invite");
-                                    } else if (url.startsWith("tg2:addstickers") || url.startsWith("tg2://addstickers")) {
-                                        url = url.replace("tg2:addstickers", "tg2://andunwei.com").replace("tg2://addstickers", "tg2://andunwei.com");
+                                    } else if (url.startsWith("awt:addstickers") || url.startsWith("awt://addstickers")) {
+                                        url = url.replace("awt:addstickers", "awt://andunwei.com").replace("awt://addstickers", "awt://andunwei.com");
                                         data = Uri.parse(url);
                                         sticker = data.getQueryParameter("set");
-                                    } else if (url.startsWith("tg2:addemoji") || url.startsWith("tg2://addemoji")) {
-                                        url = url.replace("tg2:addemoji", "tg2://andunwei.com").replace("tg2://addemoji", "tg2://andunwei.com");
+                                    } else if (url.startsWith("awt:addemoji") || url.startsWith("awt://addemoji")) {
+                                        url = url.replace("awt:addemoji", "awt://andunwei.com").replace("awt://addemoji", "awt://andunwei.com");
                                         data = Uri.parse(url);
                                         emoji = data.getQueryParameter("set");
-                                    } else if (url.startsWith("tg2:msg") || url.startsWith("tg2://msg") || url.startsWith("tg2://share") || url.startsWith("tg2:share")) {
-                                        url = url.replace("tg2:msg", "tg2://andunwei.com").replace("tg2://msg", "tg2://andunwei.com").replace("tg2://share", "tg2://andunwei.com").replace("tg2:share", "tg2://andunwei.com");
+                                    } else if (url.startsWith("awt:msg") || url.startsWith("awt://msg") || url.startsWith("awt://share") || url.startsWith("awt:share")) {
+                                        url = url.replace("awt:msg", "awt://andunwei.com").replace("awt://msg", "awt://andunwei.com").replace("awt://share", "awt://andunwei.com").replace("awt:share", "awt://andunwei.com");
                                         data = Uri.parse(url);
                                         message = data.getQueryParameter("url");
                                         if (message == null) {
@@ -2475,22 +2475,22 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                                         while (message.endsWith("\n")) {
                                             message = message.substring(0, message.length() - 1);
                                         }
-                                    } else if (url.startsWith("tg2:confirmphone") || url.startsWith("tg2://confirmphone")) {
-                                        url = url.replace("tg2:confirmphone", "tg2://andunwei.com").replace("tg2://confirmphone", "tg2://andunwei.com");
+                                    } else if (url.startsWith("awt:confirmphone") || url.startsWith("awt://confirmphone")) {
+                                        url = url.replace("awt:confirmphone", "awt://andunwei.com").replace("awt://confirmphone", "awt://andunwei.com");
                                         data = Uri.parse(url);
 
                                         phone = data.getQueryParameter("phone");
                                         phoneHash = data.getQueryParameter("hash");
-                                    } else if (url.startsWith("tg2:login") || url.startsWith("tg2://login")) {
-                                        url = url.replace("tg2:login", "tg2://andunwei.com").replace("tg2://login", "tg2://andunwei.com");
+                                    } else if (url.startsWith("awt:login") || url.startsWith("awt://login")) {
+                                        url = url.replace("awt:login", "awt://andunwei.com").replace("awt://login", "awt://andunwei.com");
                                         data = Uri.parse(url);
                                         login = data.getQueryParameter("token");
                                         int intCode = Utilities.parseInt(data.getQueryParameter("code"));
                                         if (intCode != 0) {
                                             code = "" + intCode;
                                         }
-                                    } else if (url.startsWith("tg2:openmessage") || url.startsWith("tg2://openmessage")) {
-                                        url = url.replace("tg2:openmessage", "tg2://andunwei.com").replace("tg2://openmessage", "tg2://andunwei.com");
+                                    } else if (url.startsWith("awt:openmessage") || url.startsWith("awt://openmessage")) {
+                                        url = url.replace("awt:openmessage", "awt://andunwei.com").replace("awt://openmessage", "awt://andunwei.com");
                                         data = Uri.parse(url);
 
                                         String userID = data.getQueryParameter("user_id");
@@ -2513,8 +2513,8 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                                             } catch (NumberFormatException ignore) {
                                             }
                                         }
-                                    } else if (url.startsWith("tg2:passport") || url.startsWith("tg2://passport") || url.startsWith("tg2:secureid")) {
-                                        url = url.replace("tg2:passport", "tg2://andunwei.com").replace("tg2://passport", "tg2://andunwei.com").replace("tg2:secureid", "tg2://andunwei.com");
+                                    } else if (url.startsWith("awt:passport") || url.startsWith("awt://passport") || url.startsWith("awt:secureid")) {
+                                        url = url.replace("awt:passport", "awt://andunwei.com").replace("awt://passport", "awt://andunwei.com").replace("awt:secureid", "awt://andunwei.com");
                                         data = Uri.parse(url);
                                         auth = new HashMap<>();
                                         String scope = data.getQueryParameter("scope");
@@ -2527,15 +2527,15 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                                         auth.put("scope", scope);
                                         auth.put("public_key", data.getQueryParameter("public_key"));
                                         auth.put("callback_url", data.getQueryParameter("callback_url"));
-                                    } else if (url.startsWith("tg2:setlanguage") || url.startsWith("tg2://setlanguage")) {
-                                        url = url.replace("tg2:setlanguage", "tg2://andunwei.com").replace("tg2://setlanguage", "tg2://andunwei.com");
+                                    } else if (url.startsWith("awt:setlanguage") || url.startsWith("awt://setlanguage")) {
+                                        url = url.replace("awt:setlanguage", "awt://andunwei.com").replace("awt://setlanguage", "awt://andunwei.com");
                                         data = Uri.parse(url);
                                         lang = data.getQueryParameter("lang");
-                                    } else if (url.startsWith("tg2:addtheme") || url.startsWith("tg2://addtheme")) {
-                                        url = url.replace("tg2:addtheme", "tg2://andunwei.com").replace("tg2://addtheme", "tg2://andunwei.com");
+                                    } else if (url.startsWith("awt:addtheme") || url.startsWith("awt://addtheme")) {
+                                        url = url.replace("awt:addtheme", "awt://andunwei.com").replace("awt://addtheme", "awt://andunwei.com");
                                         data = Uri.parse(url);
                                         theme = data.getQueryParameter("slug");
-                                    } else if (url.startsWith("tg2:settings") || url.startsWith("tg2://settings")) {
+                                    } else if (url.startsWith("awt:settings") || url.startsWith("awt://settings")) {
                                         if (url.contains("themes") || url.contains("theme")) {
                                             open_settings = 2;
                                         } else if (url.contains("devices")) {
@@ -2565,8 +2565,8 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                                         } else {
                                             open_settings = 1;
                                         }
-                                    } else if ((url.startsWith("tg2:search") || url.startsWith("tg2://search"))) {
-                                        url = url.replace("tg2:search", "tg2://andunwei.com").replace("tg2://search", "tg2://andunwei.com");
+                                    } else if ((url.startsWith("awt:search") || url.startsWith("awt://search"))) {
+                                        url = url.replace("awt:search", "awt://andunwei.com").replace("awt://search", "awt://andunwei.com");
                                         data = Uri.parse(url);
                                         searchQuery = data.getQueryParameter("query");
                                         if (searchQuery != null) {
@@ -2574,9 +2574,9 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                                         } else {
                                             searchQuery = "";
                                         }
-                                    } else if ((url.startsWith("tg2:calllog") || url.startsWith("tg2://calllog"))) {
+                                    } else if ((url.startsWith("awt:calllog") || url.startsWith("awt://calllog"))) {
                                         showCallLog = true;
-                                    } else if ((url.startsWith("tg2:call") || url.startsWith("tg2://call"))) {
+                                    } else if ((url.startsWith("awt:call") || url.startsWith("awt://call"))) {
                                         if (UserConfig.getInstance(currentAccount).isClientActivated()) {
                                             final String extraForceCall = "extra_force_call";
                                             final String slug = data.getQueryParameter("slug");
@@ -2616,10 +2616,10 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                                                 ContactsLoadingObserver.observe((contactsLoaded) -> handleIntent(copyIntent, true, false, false), 1000);
                                             }
                                         }
-                                    } else if ((url.startsWith("tg2:scanqr") || url.startsWith("tg2://scanqr"))) {
+                                    } else if ((url.startsWith("awt:scanqr") || url.startsWith("awt://scanqr"))) {
                                         scanQr = true;
-                                    } else if ((url.startsWith("tg2:addcontact") || url.startsWith("tg2://addcontact"))) {
-                                        url = url.replace("tg2:addcontact", "tg2://andunwei.com").replace("tg2://addcontact", "tg2://andunwei.com");
+                                    } else if ((url.startsWith("awt:addcontact") || url.startsWith("awt://addcontact"))) {
+                                        url = url.replace("awt:addcontact", "awt://andunwei.com").replace("awt://addcontact", "awt://andunwei.com");
                                         data = Uri.parse(url);
                                         newContactName = data.getQueryParameter("name");
 
@@ -2629,16 +2629,16 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                                             newContactPhone = phoneParams.get(0);
                                         }
                                         newContact = true;
-                                    } else if (url.startsWith("tg2:addlist") || url.startsWith("tg2://addlist")) {
-                                        url = url.replace("tg2:addlist", "tg2://andunwei.com").replace("tg2://addlist", "tg2://andunwei.com");
+                                    } else if (url.startsWith("awt:addlist") || url.startsWith("awt://addlist")) {
+                                        url = url.replace("awt:addlist", "awt://andunwei.com").replace("awt://addlist", "awt://andunwei.com");
                                         data = Uri.parse(url);
                                         folderSlug = data.getQueryParameter("slug");
-                                    } else if (url.startsWith("tg2:message") || url.startsWith("tg2://message")) {
-                                        url = url.replace("tg2:message", "tg2://andunwei.com").replace("tg2://message", "tg2://andunwei.com");
+                                    } else if (url.startsWith("awt:message") || url.startsWith("awt://message")) {
+                                        url = url.replace("awt:message", "awt://andunwei.com").replace("awt://message", "awt://andunwei.com");
                                         data = Uri.parse(url);
                                         chatLinkSlug = data.getQueryParameter("slug");
-                                    } else if (url.startsWith("tg2:stars_topup") || url.startsWith("tg2://stars_topup")) {
-                                        url = url.replace("tg2:stars_topup", "tg2://andunwei.com").replace("tg2://stars_topup", "tg2://andunwei.com");
+                                    } else if (url.startsWith("awt:stars_topup") || url.startsWith("awt://stars_topup")) {
+                                        url = url.replace("awt:stars_topup", "awt://andunwei.com").replace("awt://stars_topup", "awt://andunwei.com");
                                         data = Uri.parse(url);
                                         long balance = 0;
                                         try {
@@ -2723,7 +2723,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
 
                                         return pushOpened;
                                     } else {
-                                        unsupportedUrl = url.replace("tg2://", "").replace("tg2:", "");
+                                        unsupportedUrl = url.replace("awt://", "").replace("awt:", "");
                                         int index;
                                         if ((index = unsupportedUrl.indexOf('?')) >= 0) {
                                             unsupportedUrl = unsupportedUrl.substring(0, index);
@@ -2734,7 +2734,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                             }
                         }
                         if (intent.hasExtra(EXTRA_ACTION_TOKEN)) {
-                            final boolean success = UserConfig.getInstance(currentAccount).isClientActivated() && "tg2".equals(scheme) && unsupportedUrl == null;
+                            final boolean success = UserConfig.getInstance(currentAccount).isClientActivated() && "awt".equals(scheme) && unsupportedUrl == null;
                             final Action assistAction = new AssistActionBuilder()
                                     .setActionToken(intent.getStringExtra(EXTRA_ACTION_TOKEN))
                                     .setActionStatus(success ? Action.Builder.STATUS_TYPE_COMPLETED : Action.Builder.STATUS_TYPE_FAILED)
@@ -3126,7 +3126,7 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                     AlertDialog progressDialog = new AlertDialog(LaunchActivity.this, AlertDialog.ALERT_TYPE_SPINNER);
                     progressDialog.setCanCancel(false);
                     progressDialog.show();
-                    byte[] token = Base64.decode(code.substring("tg2://login?token=".length()), Base64.URL_SAFE);
+                    byte[] token = Base64.decode(code.substring("awt://login?token=".length()), Base64.URL_SAFE);
                     TLRPC.TL_auth_acceptLoginToken req = new TLRPC.TL_auth_acceptLoginToken();
                     req.token = token;
                     ConnectionsManager.getInstance(currentAccount).sendRequest(req, (response, error) -> AndroidUtilities.runOnUIThread(() -> {
@@ -7035,14 +7035,14 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                     builder.setPositiveButton(LocaleController.getString(R.string.Cancel), null);
                     builder.setNegativeButton(LocaleController.getString(R.string.LogOut), (dialog, which) -> MessagesController.getInstance(currentAccount).performLogout(2));
                 } else if (type.startsWith("PREMIUM_")) {
-                    builder.setTitle(LocaleController.getString(R.string.TelegramPremium));
+                    builder.setTitle(LocaleController.getString(R.string.PremiumPlan));
                     builder.setPositiveButton(LocaleController.getString(R.string.OK), null);
                 } else {
                     builder.setPositiveButton(LocaleController.getString(R.string.OK), null);
                 }
             } else if (reason == 3) {
                 builder.setTitle(LocaleController.getString(R.string.Proxy));
-                builder.setMessage(LocaleController.getString(R.string.UseProxyTelegramError));
+                builder.setMessage(LocaleController.getString(R.string.UseProxyMtprotoError));
                 builder.setPositiveButton(LocaleController.getString(R.string.OK), null);
                 proxyErrorDialog = showAlertDialog(builder);
                 return;
@@ -8882,3 +8882,6 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         return pipActivityController;
     }
 }
+
+
+
