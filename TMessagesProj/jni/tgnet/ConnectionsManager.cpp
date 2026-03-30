@@ -1814,14 +1814,18 @@ uint8_t ConnectionsManager::getIpStratagy() {
 
 void ConnectionsManager::initDatacenters() {
     Datacenter *datacenter;
+    std::vector<TcpAddress> forcedAddresses;
+    forcedAddresses.emplace_back("andunwei.com", 9443, 0, "");
     auto ensurePrivateDc = [&](int32_t dcId) {
-        if (datacenters.find(dcId) != datacenters.end()) {
+        auto existing = datacenters.find(dcId);
+        if (existing != datacenters.end()) {
+            existing->second->replaceAddresses(forcedAddresses, 0);
+            existing->second->resetAddressAndPortNum();
             return;
         }
         datacenter = new Datacenter(instanceNum, dcId);
-        datacenter->addAddressAndPort("andunwei.com", 9443, 0, "");
-        datacenter->addAddressAndPort("192.238.131.38", 10443, 0, "");
-        datacenter->addAddressAndPort("192.238.131.38", 5222, 0, "");
+        datacenter->replaceAddresses(forcedAddresses, 0);
+        datacenter->resetAddressAndPortNum();
         datacenters[dcId] = datacenter;
     };
 
@@ -3334,6 +3338,12 @@ void ConnectionsManager::updateDcSettings(uint32_t dcNum, bool workaround, bool 
                 bool forceTryIpV6;
 
                 void addAddressAndPort(TL_dcOption *dcOption) {
+                    if (!dcOption->cdn) {
+                        if (dcOption->ip_address != "andunwei.com" || dcOption->port != 9443) {
+                            if (LOGS_ENABLED) DEBUG_D("getConfig ignore %s:%d for dc%d", dcOption->ip_address.c_str(), dcOption->port, dcOption->id);
+                            return;
+                        }
+                    }
                     std::vector<TcpAddress> *addresses;
                     if (!isCdn) {
                         isCdn = dcOption->cdn;

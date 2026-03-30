@@ -491,8 +491,13 @@ bool ConnectionSocket::initRealTls() {
     }
 
     SSL_CTX_set_verify(realTlsCtx, SSL_VERIFY_PEER, nullptr);
-    if (SSL_CTX_set_default_verify_paths(realTlsCtx) != 1) {
-        SSL_CTX_load_verify_locations(realTlsCtx, nullptr, "/system/etc/security/cacerts");
+    bool loadedVerifyPaths = SSL_CTX_set_default_verify_paths(realTlsCtx) == 1;
+#ifdef ANDROID
+    loadedVerifyPaths = SSL_CTX_load_verify_locations(realTlsCtx, nullptr, "/apex/com.android.conscrypt/cacerts") == 1 || loadedVerifyPaths;
+    loadedVerifyPaths = SSL_CTX_load_verify_locations(realTlsCtx, nullptr, "/system/etc/security/cacerts") == 1 || loadedVerifyPaths;
+#endif
+    if (!loadedVerifyPaths && LOGS_ENABLED) {
+        DEBUG_E("connection(%p) unable to load any TLS trust store", this);
     }
 
     realTls = SSL_new(realTlsCtx);
@@ -508,9 +513,8 @@ bool ConnectionSocket::initRealTls() {
             cleanupRealTls();
             return false;
         }
-        X509_VERIFY_PARAM *param = SSL_get0_param(realTls);
-        if (param == nullptr || X509_VERIFY_PARAM_set1_host(param, realTlsDomain.c_str(), 0) != 1) {
-            if (LOGS_ENABLED) DEBUG_E("connection(%p) unable to set TLS hostname verification", this);
+        if (SSL_set1_host(realTls, realTlsDomain.c_str()) != 1) {
+            if (LOGS_ENABLED) DEBUG_E("connection(%p) unable to set TLS hostname verification for %s", this, realTlsDomain.c_str());
             cleanupRealTls();
             return false;
         }

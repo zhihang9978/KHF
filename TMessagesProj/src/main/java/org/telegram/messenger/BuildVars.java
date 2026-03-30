@@ -27,7 +27,7 @@ public class BuildVars {
     public static String BUILD_VERSION_STRING = BuildConfig.BUILD_VERSION_STRING;
 
     public static int APP_ID = 30258485;
-    public static String APP_HASH = "EF83219F9349C72045FF81566dd92C74";
+    public static String APP_HASH = "ef83219f9349c72045ff81566dd92c74";
 
     // SafetyNet key for Google Identity SDK, set it to empty to disable
     public static String SAFETYNET_KEY = "";
