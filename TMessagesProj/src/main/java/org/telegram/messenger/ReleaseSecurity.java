@@ -38,6 +38,9 @@ final class ReleaseSecurity {
     }
 
     static void enforceReleaseGuards(@NonNull Context context) {
+        if (BuildConfig.INTERNAL_TEST_BUILD) {
+            return;
+        }
         if (BuildVars.DEBUG_VERSION || BuildVars.DEBUG_PRIVATE_VERSION || BuildVars.isBetaApp()) {
             return;
         }

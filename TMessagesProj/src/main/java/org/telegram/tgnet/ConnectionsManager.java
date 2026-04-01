@@ -119,8 +119,36 @@ public class ConnectionsManager extends BaseController {
     private boolean appPaused = true;
     private boolean isUpdating;
     private int connectionState;
+    private boolean lastKnownNetworkOnline;
+    private int lastKnownNetworkType = Integer.MIN_VALUE;
+    private long lastKnownNetworkHandle = Long.MIN_VALUE;
+    private int lastKnownNetworkTransportMask = Integer.MIN_VALUE;
+    private String lastKnownNetworkRouteFingerprint = "";
+    private long lastKnownNetworkRouteSerial = Long.MIN_VALUE;
+    private long lastSoftNetworkProbeTime;
+    private long lastForcedReconnectTime;
+    private boolean softNetworkHealthCheckPending;
     private AtomicInteger lastRequestToken = new AtomicInteger(1);
     private int appResumeCount;
+
+    private static final long SOFT_NETWORK_PROBE_INTERVAL_MS = 3_000L;
+    private static final long SOFT_NETWORK_STALE_CHECK_DELAY_MS = 2_500L;
+    private static final long FORCED_RECONNECT_COOLDOWN_MS = 5_000L;
+
+    private final Runnable softNetworkHealthCheckRunnable = () -> {
+        softNetworkHealthCheckPending = false;
+        if (appPaused || appResumeCount <= 0 || !ApplicationLoader.isNetworkOnline()) {
+            return;
+        }
+        if (!isConnectionStateStale(native_getConnectionState(currentAccount))) {
+            return;
+        }
+        long now = SystemClock.elapsedRealtime();
+        if (now - lastForcedReconnectTime < FORCED_RECONNECT_COOLDOWN_MS) {
+            return;
+        }
+        forceReconnectCurrentTransport();
+    };
 
     private static AsyncTask currentTask;
 
@@ -153,6 +181,98 @@ public class ConnectionsManager extends BaseController {
             this.forceTryIpV6 = forceTryIpV6;
             checkConnection();
         }
+    }
+
+    private boolean isConnectionStateStale(int currentState) {
+        return currentState == ConnectionStateConnecting
+                || currentState == ConnectionStateWaitingForNetwork
+                || currentState == ConnectionStateConnectingToProxy;
+    }
+
+    private void scheduleSoftNetworkHealthCheck() {
+        softNetworkHealthCheckPending = true;
+        Utilities.stageQueue.cancelRunnable(softNetworkHealthCheckRunnable);
+        Utilities.stageQueue.postRunnable(softNetworkHealthCheckRunnable, SOFT_NETWORK_STALE_CHECK_DELAY_MS);
+    }
+
+    private void cancelSoftNetworkHealthCheck() {
+        softNetworkHealthCheckPending = false;
+        Utilities.stageQueue.cancelRunnable(softNetworkHealthCheckRunnable);
+    }
+
+    private void forceReconnectCurrentTransport() {
+        int currentDcId = native_getCurrentDatacenterId(currentAccount);
+        if (currentDcId != 0 && currentDcId != DEFAULT_DATACENTER_ID) {
+            native_discardConnection(currentAccount, currentDcId, ConnectionTypeGeneric);
+            native_discardConnection(currentAccount, currentDcId, ConnectionTypePush);
+        }
+        native_resumeNetwork(currentAccount, false);
+        lastForcedReconnectTime = SystemClock.elapsedRealtime();
+    }
+
+    private void applyNetworkState(boolean forceReconnect) {
+        final ApplicationLoader.NetworkRouteSnapshot routeSnapshot = ApplicationLoader.getCurrentNetworkRouteSnapshot();
+        final byte selectedStrategy = getIpStrategy();
+        final boolean networkOnline = routeSnapshot.online;
+        final int networkType = routeSnapshot.networkType;
+        final boolean slowConnection = routeSnapshot.slow;
+        final boolean onlineChanged = networkOnline != lastKnownNetworkOnline;
+        final boolean networkTypeChanged = networkType != lastKnownNetworkType;
+        final boolean transportHandleChanged = routeSnapshot.handle != lastKnownNetworkHandle;
+        final boolean transportMaskChanged = routeSnapshot.transportMask != lastKnownNetworkTransportMask;
+        final boolean routeFingerprintChanged = !TextUtils.equals(routeSnapshot.routeFingerprint, lastKnownNetworkRouteFingerprint);
+        final boolean routeSerialChanged = routeSnapshot.routeSerial != lastKnownNetworkRouteSerial;
+        final boolean hardTransportChanged = onlineChanged || networkTypeChanged || transportHandleChanged || transportMaskChanged;
+        final boolean softRouteRefresh = forceReconnect && networkOnline && !hardTransportChanged && (routeFingerprintChanged || routeSerialChanged);
+        final boolean canActivelyRecover = networkOnline && !appPaused && appResumeCount > 0;
+        final int currentNativeConnectionState = native_getConnectionState(currentAccount);
+        final boolean staleConnectionState = isConnectionStateStale(currentNativeConnectionState);
+        final long now = SystemClock.elapsedRealtime();
+        final boolean shouldProbeSoftRefresh = softRouteRefresh && canActivelyRecover && now - lastSoftNetworkProbeTime >= SOFT_NETWORK_PROBE_INTERVAL_MS;
+        final boolean shouldForceReconnect = hardTransportChanged && canActivelyRecover && now - lastForcedReconnectTime >= FORCED_RECONNECT_COOLDOWN_MS;
+        lastKnownNetworkOnline = networkOnline;
+        lastKnownNetworkType = networkType;
+        lastKnownNetworkHandle = routeSnapshot.handle;
+        lastKnownNetworkTransportMask = routeSnapshot.transportMask;
+        lastKnownNetworkRouteFingerprint = routeSnapshot.routeFingerprint;
+        lastKnownNetworkRouteSerial = routeSnapshot.routeSerial;
+        if (BuildVars.LOGS_ENABLED) {
+            String recoveryMode;
+            if (shouldForceReconnect) {
+                recoveryMode = "force reconnect";
+            } else if (shouldProbeSoftRefresh) {
+                recoveryMode = "soft probe";
+            } else if (softRouteRefresh) {
+                recoveryMode = "soft refresh";
+            } else {
+                recoveryMode = "steady";
+            }
+            FileLog.d("selected ip strategy " + selectedStrategy + ", network mode " + recoveryMode + ", route " + routeSnapshot.routeFingerprint);
+        }
+        Utilities.stageQueue.postRunnable(() -> {
+            native_setIpStrategy(currentAccount, selectedStrategy);
+            native_setNetworkAvailable(currentAccount, networkOnline, networkType, slowConnection);
+            if (!networkOnline || appPaused || appResumeCount <= 0) {
+                cancelSoftNetworkHealthCheck();
+                return;
+            }
+            if (shouldForceReconnect) {
+                cancelSoftNetworkHealthCheck();
+                forceReconnectCurrentTransport();
+            } else if (shouldProbeSoftRefresh) {
+                lastSoftNetworkProbeTime = now;
+                native_resumeNetwork(currentAccount, true);
+                if (staleConnectionState) {
+                    scheduleSoftNetworkHealthCheck();
+                } else {
+                    cancelSoftNetworkHealthCheck();
+                }
+            } else if (!softRouteRefresh) {
+                cancelSoftNetworkHealthCheck();
+            } else if (staleConnectionState && !softNetworkHealthCheckPending) {
+                scheduleSoftNetworkHealthCheck();
+            }
+        });
     }
 
     public void discardConnection(int dcId, int connectionType) {
@@ -595,12 +715,11 @@ public class ConnectionsManager extends BaseController {
     }
 
     public void checkConnection() {
-        byte selectedStrategy = getIpStrategy();
-        if (BuildVars.LOGS_ENABLED) {
-            FileLog.d("selected ip strategy " + selectedStrategy);
-        }
-        native_setIpStrategy(currentAccount, selectedStrategy);
-        native_setNetworkAvailable(currentAccount, ApplicationLoader.isNetworkOnline(), ApplicationLoader.getCurrentNetworkType(), ApplicationLoader.isConnectionSlow());
+        applyNetworkState(false);
+    }
+
+    public void onNetworkChanged() {
+        applyNetworkState(true);
     }
 
     public void setPushConnectionEnabled(boolean value) {

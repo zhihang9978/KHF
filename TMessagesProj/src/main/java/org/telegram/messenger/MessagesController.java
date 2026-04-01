@@ -303,6 +303,7 @@ public class MessagesController extends BaseController implements NotificationCe
     private HashSet<Long> loadingGroupCalls = new HashSet<>();
     private HashSet<Long> loadingFullParticipants = new HashSet<>();
     private HashSet<Long> loadedFullParticipants = new HashSet<>();
+    private final HashSet<Long> reloadingMissingUsers = new HashSet<>();
     public LongSparseLongArray loadedFullChats = new LongSparseLongArray();
     private LongSparseArray<LongSparseArray<TLRPC.ChannelParticipant>> channelAdmins = new LongSparseArray<>();
     private LongSparseIntArray loadingChannelAdmins = new LongSparseIntArray();
@@ -6770,6 +6771,9 @@ public class MessagesController extends BaseController implements NotificationCe
         if (oldUser == user && !force) {
             return false;
         }
+        if (!fromCache && !user.min && user.id / 1000 != 333 && user.id != 777000 && shouldPreserveCompleteUser(oldUser, user)) {
+            return false;
+        }
         if (oldUser != null && !TextUtils.isEmpty(oldUser.username)) {
             objectsByUsernames.remove(oldUser.username.toLowerCase());
         }
@@ -6858,10 +6862,113 @@ public class MessagesController extends BaseController implements NotificationCe
         return false;
     }
 
-    public void reloadUser(long userId) {
+    private boolean shouldPreserveCompleteUser(TLRPC.User oldUser, TLRPC.User newUser) {
+        return oldUser != null
+                && !oldUser.deleted
+                && !newUser.deleted
+                && !TextUtils.isEmpty(oldUser.first_name)
+                && TextUtils.isEmpty(newUser.first_name);
+    }
+
+    private boolean hasResolvedUser(TLRPC.User user, boolean allowMin) {
+        if (user == null || !allowMin && user.min) {
+            return false;
+        }
+        if (user.deleted) {
+            return true;
+        }
+        return !TextUtils.isEmpty(user.first_name) || !TextUtils.isEmpty(user.last_name) || !TextUtils.isEmpty(user.username);
+    }
+
+    private void requestMissingUsersForMessage(TLRPC.Message message, ConcurrentHashMap<Long, TLRPC.User> usersDict) {
+        if (message == null) {
+            return;
+        }
+        maybeQueueMissingUserReload(message.peer_id != null ? message.peer_id.user_id : 0, false, message, usersDict);
+        maybeQueueMissingUserReload(message.from_id instanceof TLRPC.TL_peerUser ? message.from_id.user_id : 0, message.post, message, usersDict);
+        maybeQueueMissingUserReload(message.fwd_from != null && message.fwd_from.from_id instanceof TLRPC.TL_peerUser ? message.fwd_from.from_id.user_id : 0, false, message, usersDict);
+        for (int i = 0; i < message.entities.size(); i++) {
+            TLRPC.MessageEntity entity = message.entities.get(i);
+            if (entity instanceof TLRPC.TL_messageEntityMentionName) {
+                maybeQueueMissingUserReload(((TLRPC.TL_messageEntityMentionName) entity).user_id, false, message, usersDict);
+            }
+        }
+    }
+
+    private void maybeQueueMissingUserReload(long userId, boolean allowMin, TLRPC.Message sourceMessage, ConcurrentHashMap<Long, TLRPC.User> usersDict) {
+        if (userId <= 0 || userId == getUserConfig().getClientUserId()) {
+            return;
+        }
+        TLRPC.User user = usersDict != null ? usersDict.get(userId) : null;
+        if (!hasResolvedUser(user, allowMin)) {
+            user = getUser(userId);
+        }
+        if (hasResolvedUser(user, allowMin)) {
+            return;
+        }
+        queueMissingUserReload(userId, sourceMessage);
+    }
+
+    private void queueMissingUserReload(long userId, TLRPC.Message sourceMessage) {
+        TLRPC.InputUser inputUser = getInputUserForReload(userId, sourceMessage);
+        if (inputUser == null) {
+            return;
+        }
+        synchronized (reloadingMissingUsers) {
+            if (!reloadingMissingUsers.add(userId)) {
+                return;
+            }
+        }
         TLRPC.TL_users_getUsers req = new TLRPC.TL_users_getUsers();
-        TLRPC.InputUser inputPeer = getInputUser(userId);
-        if (inputPeer == null) return;
+        req.id.add(inputUser);
+        getConnectionsManager().sendRequest(req, (response, error) -> {
+            synchronized (reloadingMissingUsers) {
+                reloadingMissingUsers.remove(userId);
+            }
+            if (!(response instanceof Vector)) {
+                return;
+            }
+            ArrayList<TLRPC.User> fetchedUsers = new ArrayList<>();
+            for (int i = 0, size = ((Vector) response).objects.size(); i < size; i++) {
+                Object object = ((Vector) response).objects.get(i);
+                if (object instanceof TLRPC.User) {
+                    fetchedUsers.add((TLRPC.User) object);
+                }
+            }
+            if (!fetchedUsers.isEmpty()) {
+                getMessagesController().putUsers(fetchedUsers, false);
+            }
+        });
+    }
+
+    private TLRPC.InputUser getInputUserForReload(long userId, TLRPC.Message sourceMessage) {
+        TLRPC.InputUser inputUser = getInputUser(userId);
+        if (!(inputUser instanceof TLRPC.TL_inputUserEmpty)) {
+            return inputUser;
+        }
+        if (sourceMessage == null || sourceMessage.id == 0 || sourceMessage.peer_id == null) {
+            return null;
+        }
+        if (sourceMessage.peer_id instanceof TLRPC.TL_peerUser) {
+            return null;
+        }
+        TLRPC.InputPeer inputPeer = getInputPeer(sourceMessage.peer_id);
+        if (inputPeer == null) {
+            return null;
+        }
+        TLRPC.TL_inputUserFromMessage inputUserFromMessage = new TLRPC.TL_inputUserFromMessage();
+        inputUserFromMessage.peer = inputPeer;
+        inputUserFromMessage.msg_id = sourceMessage.id;
+        inputUserFromMessage.user_id = userId;
+        return inputUserFromMessage;
+    }
+
+    public void reloadUser(long userId) {
+        TLRPC.InputUser inputPeer = getInputUserForReload(userId, null);
+        if (inputPeer == null) {
+            return;
+        }
+        TLRPC.TL_users_getUsers req = new TLRPC.TL_users_getUsers();
         req.id.add(inputPeer);
         ConnectionsManager.getInstance(currentAccount).sendRequest(req, (res, err) -> {
             if (res instanceof Vector) {
@@ -17582,6 +17689,7 @@ public class MessagesController extends BaseController implements NotificationCe
                         putChat(chat, true);
                     }
                 }
+                requestMissingUsersForMessage(message, usersDict);
                 if (!fromGetDifference) {
                     if (chatId != 0) {
                         if (chat == null) {
@@ -17620,11 +17728,12 @@ public class MessagesController extends BaseController implements NotificationCe
                                 }
                                 putUser(user, true);
                             }
-                            if (user == null) {
+                            if (!hasResolvedUser(user, allowMin)) {
+                                maybeQueueMissingUserReload(userId, allowMin, message, usersDict);
                                 if (BuildVars.LOGS_ENABLED) {
                                     FileLog.d("not found user " + userId);
                                 }
-                                return false;
+                                continue;
                             }
                             if (!message.out && a == 1 && user.status != null && user.status.expires <= 0 && Math.abs(getConnectionsManager().getCurrentTime() - message.date) < 30) {
                                 onlinePrivacy.put(userId, message.date);

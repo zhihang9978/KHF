@@ -789,6 +789,29 @@ void ConnectionSocket::openConnectionInternal(bool ipv6) {
     if (setsockopt(socketFd, IPPROTO_TCP, TCP_NODELAY, &yes, sizeof(int))) {
         if (LOGS_ENABLED) DEBUG_E("connection(%p) set TCP_NODELAY failed", this);
     }
+#if defined(SO_KEEPALIVE)
+    if (setsockopt(socketFd, SOL_SOCKET, SO_KEEPALIVE, &yes, sizeof(int))) {
+        if (LOGS_ENABLED) DEBUG_E("connection(%p) set SO_KEEPALIVE failed", this);
+    }
+#endif
+#if defined(TCP_KEEPIDLE)
+    int keepIdle = 30;
+    if (setsockopt(socketFd, IPPROTO_TCP, TCP_KEEPIDLE, &keepIdle, sizeof(int))) {
+        if (LOGS_ENABLED) DEBUG_E("connection(%p) set TCP_KEEPIDLE failed", this);
+    }
+#endif
+#if defined(TCP_KEEPINTVL)
+    int keepInterval = 10;
+    if (setsockopt(socketFd, IPPROTO_TCP, TCP_KEEPINTVL, &keepInterval, sizeof(int))) {
+        if (LOGS_ENABLED) DEBUG_E("connection(%p) set TCP_KEEPINTVL failed", this);
+    }
+#endif
+#if defined(TCP_KEEPCNT)
+    int keepCount = 3;
+    if (setsockopt(socketFd, IPPROTO_TCP, TCP_KEEPCNT, &keepCount, sizeof(int))) {
+        if (LOGS_ENABLED) DEBUG_E("connection(%p) set TCP_KEEPCNT failed", this);
+    }
+#endif
 #ifdef DEBUG_VERSION
     int size = 4 * 1024 * 1024;
     if (setsockopt(socketFd, SOL_SOCKET, SO_SNDBUF, &size, sizeof(int))) {

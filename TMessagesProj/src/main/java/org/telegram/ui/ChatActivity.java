@@ -2651,8 +2651,12 @@ public class ChatActivity extends BaseFragment implements
                 if (currentUser != null) {
                     getMessagesController().putUser(currentUser, true);
                 } else {
+                    getMessagesController().reloadUser(userId);
                     return false;
                 }
+            }
+            if (currentUser != null && !currentUser.deleted && TextUtils.isEmpty(currentUser.first_name) && TextUtils.isEmpty(currentUser.last_name) && TextUtils.isEmpty(currentUser.username)) {
+                getMessagesController().reloadUser(userId);
             }
             dialog_id = userId;
             botUser = arguments.getString("botUser");
@@ -2704,8 +2708,12 @@ public class ChatActivity extends BaseFragment implements
                 if (currentUser != null) {
                     getMessagesController().putUser(currentUser, true);
                 } else {
+                    getMessagesController().reloadUser(currentEncryptedChat.user_id);
                     return false;
                 }
+            }
+            if (currentUser != null && !currentUser.deleted && TextUtils.isEmpty(currentUser.first_name) && TextUtils.isEmpty(currentUser.last_name) && TextUtils.isEmpty(currentUser.username)) {
+                getMessagesController().reloadUser(currentEncryptedChat.user_id);
             }
             dialog_id = DialogObject.makeEncryptedDialogId(encId);
             maxMessageId[0] = maxMessageId[1] = Integer.MIN_VALUE;

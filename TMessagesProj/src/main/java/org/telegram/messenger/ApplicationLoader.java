@@ -20,9 +20,12 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
+import android.net.LinkAddress;
+import android.net.LinkProperties;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
+import android.net.RouteInfo;
 import android.os.Build;
 import android.os.Handler;
 import android.os.PowerManager;
@@ -46,7 +49,10 @@ import org.telegram.ui.IUpdateLayout;
 import org.telegram.ui.LauncherIconController;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Locale;
+import java.util.Objects;
 
 public class ApplicationLoader extends Application {
 
@@ -62,6 +68,12 @@ public class ApplicationLoader extends Application {
     private static volatile  ConnectivityManager.NetworkCallback networkCallback;
     private static long lastNetworkCheckTypeTime;
     private static int lastKnownNetworkType = -1;
+    private static volatile long currentNetworkHandle = -1;
+    private static volatile int currentNetworkTransportMask;
+    private static volatile String currentNetworkRouteFingerprint = "offline";
+    private static volatile long currentNetworkRouteSerial;
+    private static volatile long lastDispatchedNetworkRouteSerial = Long.MIN_VALUE;
+    private static volatile long lastDispatchedNetworkRouteTime;
 
     public static long startTime;
 
@@ -72,6 +84,26 @@ public class ApplicationLoader extends Application {
     public static volatile boolean mainInterfacePausedStageQueue = true;
     public static boolean canDrawOverlays;
     public static volatile long mainInterfacePausedStageQueueTime;
+
+    public static final class NetworkRouteSnapshot {
+        public final boolean online;
+        public final int networkType;
+        public final boolean slow;
+        public final long handle;
+        public final int transportMask;
+        public final String routeFingerprint;
+        public final long routeSerial;
+
+        public NetworkRouteSnapshot(boolean online, int networkType, boolean slow, long handle, int transportMask, String routeFingerprint, long routeSerial) {
+            this.online = online;
+            this.networkType = networkType;
+            this.slow = slow;
+            this.handle = handle;
+            this.transportMask = transportMask;
+            this.routeFingerprint = routeFingerprint;
+            this.routeSerial = routeSerial;
+        }
+    }
 
     private static PushListenerController.IPushListenerServiceProvider pushProvider;
     private static IMapsProvider mapsProvider;
@@ -205,17 +237,7 @@ public class ApplicationLoader extends Application {
             BroadcastReceiver networkStateReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    try {
-                        currentNetworkInfo = connectivityManager.getActiveNetworkInfo();
-                    } catch (Throwable ignore) {
-
-                    }
-
-                    boolean isSlow = isConnectionSlow();
-                    for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
-                        ConnectionsManager.getInstance(a).checkConnection();
-                        FileLoader.getInstance(a).onNetworkChanged(isSlow);
-                    }
+                    dispatchNetworkStateChanged(true);
                 }
             };
             IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
@@ -412,32 +434,232 @@ public class ApplicationLoader extends Application {
     }
 
     private static void ensureCurrentNetworkGet(boolean force) {
-        if (force || currentNetworkInfo == null) {
-            try {
-                if (connectivityManager == null) {
-                    connectivityManager = (ConnectivityManager) ApplicationLoader.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-                }
-                currentNetworkInfo = connectivityManager.getActiveNetworkInfo();
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    if (networkCallback == null) {
-                        networkCallback = new ConnectivityManager.NetworkCallback() {
-                            @Override
-                            public void onAvailable(@NonNull Network network) {
-                                lastKnownNetworkType = -1;
-                            }
-
-                            @Override
-                            public void onCapabilitiesChanged(@NonNull Network network, @NonNull NetworkCapabilities networkCapabilities) {
-                                lastKnownNetworkType = -1;
-                            }
-                        };
-                        connectivityManager.registerDefaultNetworkCallback(networkCallback);
+        if (!force && currentNetworkInfo != null) {
+            return;
+        }
+        try {
+            if (connectivityManager == null) {
+                connectivityManager = (ConnectivityManager) ApplicationLoader.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+            }
+            if (connectivityManager == null) {
+                return;
+            }
+            currentNetworkInfo = connectivityManager.getActiveNetworkInfo();
+            updateCurrentNetworkRouteState(connectivityManager);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && networkCallback == null) {
+                networkCallback = new ConnectivityManager.NetworkCallback() {
+                    @Override
+                    public void onAvailable(@NonNull Network network) {
+                        lastKnownNetworkType = -1;
+                        dispatchNetworkStateChanged(true);
                     }
-                }
+
+                    @Override
+                    public void onLost(@NonNull Network network) {
+                        lastKnownNetworkType = -1;
+                        dispatchNetworkStateChanged(true);
+                    }
+
+                    @Override
+                    public void onCapabilitiesChanged(@NonNull Network network, @NonNull NetworkCapabilities networkCapabilities) {
+                        lastKnownNetworkType = -1;
+                        dispatchNetworkStateChanged(true);
+                    }
+
+                    @Override
+                    public void onLinkPropertiesChanged(@NonNull Network network, @NonNull LinkProperties linkProperties) {
+                        lastKnownNetworkType = -1;
+                        dispatchNetworkStateChanged(true);
+                    }
+                };
+                connectivityManager.registerDefaultNetworkCallback(networkCallback);
+            }
+        } catch (Throwable ignore) {
+
+        }
+    }
+
+    public static NetworkRouteSnapshot getCurrentNetworkRouteSnapshot() {
+        ensureCurrentNetworkGet(false);
+        return new NetworkRouteSnapshot(
+                isNetworkOnlineFast(),
+                getCurrentNetworkType(),
+                isConnectionSlow(),
+                currentNetworkHandle,
+                currentNetworkTransportMask,
+                currentNetworkRouteFingerprint,
+                currentNetworkRouteSerial
+        );
+    }
+
+    private static void dispatchNetworkStateChanged(boolean forceRefresh) {
+        try {
+            ensureCurrentNetworkGet(forceRefresh);
+        } catch (Throwable ignore) {
+
+        }
+        final long routeSerial = currentNetworkRouteSerial;
+        final long now = SystemClock.elapsedRealtime();
+        if (routeSerial == lastDispatchedNetworkRouteSerial && now - lastDispatchedNetworkRouteTime < 1000) {
+            return;
+        }
+        lastDispatchedNetworkRouteSerial = routeSerial;
+        lastDispatchedNetworkRouteTime = now;
+        final boolean isSlow = isConnectionSlow();
+        Runnable notifyRunnable = () -> {
+            for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+                ConnectionsManager.getInstance(a).onNetworkChanged();
+                FileLoader.getInstance(a).onNetworkChanged(isSlow);
+            }
+        };
+        if (applicationHandler != null) {
+            applicationHandler.post(notifyRunnable);
+        } else {
+            notifyRunnable.run();
+        }
+    }
+
+    private static void updateCurrentNetworkRouteState(ConnectivityManager connectivityManager) {
+        long handle = -1;
+        int transportMask = 0;
+        String routeFingerprint = "offline";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && connectivityManager != null) {
+            try {
+                Network activeNetwork = connectivityManager.getActiveNetwork();
+                NetworkCapabilities capabilities = activeNetwork != null ? connectivityManager.getNetworkCapabilities(activeNetwork) : null;
+                LinkProperties linkProperties = activeNetwork != null ? connectivityManager.getLinkProperties(activeNetwork) : null;
+                handle = getNetworkHandleCompat(activeNetwork);
+                transportMask = buildTransportMask(capabilities);
+                routeFingerprint = buildRouteFingerprint(handle, transportMask, capabilities, linkProperties);
             } catch (Throwable ignore) {
 
             }
         }
+        if (handle == -1 && currentNetworkInfo != null) {
+            routeFingerprint = buildLegacyRouteFingerprint(currentNetworkInfo);
+        }
+        if (currentNetworkHandle != handle || currentNetworkTransportMask != transportMask || !Objects.equals(currentNetworkRouteFingerprint, routeFingerprint)) {
+            currentNetworkRouteSerial++;
+        }
+        currentNetworkHandle = handle;
+        currentNetworkTransportMask = transportMask;
+        currentNetworkRouteFingerprint = routeFingerprint;
+    }
+
+    private static long getNetworkHandleCompat(Network network) {
+        if (network == null) {
+            return -1;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return network.getNetworkHandle();
+        }
+        return network.hashCode();
+    }
+
+    private static int buildTransportMask(NetworkCapabilities networkCapabilities) {
+        if (networkCapabilities == null) {
+            return 0;
+        }
+        int mask = 0;
+        if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+            mask |= 1;
+        }
+        if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+            mask |= 1 << 1;
+        }
+        if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+            mask |= 1 << 2;
+        }
+        if (networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
+            mask |= 1 << 3;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1 && networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_LOWPAN)) {
+            mask |= 1 << 4;
+        }
+        return mask;
+    }
+
+    private static String buildRouteFingerprint(long handle, int transportMask, NetworkCapabilities networkCapabilities, LinkProperties linkProperties) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("h=").append(handle).append(";tm=").append(transportMask);
+        if (networkCapabilities != null) {
+            builder.append(";validated=").append(networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) ? 1 : 0);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                builder.append(";captive=").append(networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_CAPTIVE_PORTAL) ? 1 : 0);
+            }
+            builder.append(";metered=").append(networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED) ? 0 : 1);
+        }
+        if (linkProperties == null) {
+            return builder.toString();
+        }
+        builder.append(";if=").append(linkProperties.getInterfaceName());
+
+        ArrayList<String> addresses = new ArrayList<>();
+        for (LinkAddress linkAddress : linkProperties.getLinkAddresses()) {
+            addresses.add(linkAddress.toString());
+        }
+        Collections.sort(addresses);
+        if (!addresses.isEmpty()) {
+            builder.append(";addr=");
+            for (int i = 0; i < addresses.size(); i++) {
+                if (i != 0) {
+                    builder.append(',');
+                }
+                builder.append(addresses.get(i));
+            }
+        }
+
+        ArrayList<String> dnsServers = new ArrayList<>();
+        for (java.net.InetAddress dnsServer : linkProperties.getDnsServers()) {
+            dnsServers.add(dnsServer.getHostAddress());
+        }
+        Collections.sort(dnsServers);
+        if (!dnsServers.isEmpty()) {
+            builder.append(";dns=");
+            for (int i = 0; i < dnsServers.size(); i++) {
+                if (i != 0) {
+                    builder.append(',');
+                }
+                builder.append(dnsServers.get(i));
+            }
+        }
+
+        ArrayList<String> routes = new ArrayList<>();
+        for (RouteInfo routeInfo : linkProperties.getRoutes()) {
+            if (routeInfo.isDefaultRoute()) {
+                routes.add(String.valueOf(routeInfo.getGateway()));
+            }
+        }
+        Collections.sort(routes);
+        if (!routes.isEmpty()) {
+            builder.append(";gw=");
+            for (int i = 0; i < routes.size(); i++) {
+                if (i != 0) {
+                    builder.append(',');
+                }
+                builder.append(routes.get(i));
+            }
+        }
+
+        return builder.toString();
+    }
+
+    private static String buildLegacyRouteFingerprint(NetworkInfo networkInfo) {
+        if (networkInfo == null) {
+            return "offline";
+        }
+        StringBuilder builder = new StringBuilder();
+        builder.append("legacy:")
+                .append(networkInfo.getType())
+                .append(':')
+                .append(networkInfo.getSubtype())
+                .append(':')
+                .append(networkInfo.getDetailedState());
+        String extraInfo = networkInfo.getExtraInfo();
+        if (extraInfo != null) {
+            builder.append(':').append(extraInfo);
+        }
+        return builder.toString();
     }
 
     public static boolean isRoaming() {

@@ -22,6 +22,19 @@
 
 thread_local static uint32_t lastConnectionToken = 1;
 
+static uint32_t reconnectDelayMsForAttempt(uint16_t failedConnectionCount) {
+    if (failedConnectionCount <= 1) {
+        return 1;
+    }
+    if (failedConnectionCount == 2) {
+        return 1000;
+    }
+    if (failedConnectionCount == 3) {
+        return 2000;
+    }
+    return 5000;
+}
+
 Connection::Connection(Datacenter *datacenter, ConnectionType type, int8_t num) : ConnectionSession(datacenter->instanceNum), ConnectionSocket(datacenter->instanceNum) {
     currentDatacenter = datacenter;
     connectionNum = num;
@@ -679,6 +692,8 @@ void Connection::onDisconnectedInternal(int32_t reason, int32_t error) {
     connectionToken = 0;
 
     uint32_t datacenterId = currentDatacenter->getDatacenterId();
+    bool shouldReconnect = false;
+    uint32_t reconnectDelay = 0;
     if (connectionState == TcpConnectionStageIdle) {
         connectionState = TcpConnectionStageReconnecting;
         failedConnectionCount++;
@@ -702,22 +717,22 @@ void Connection::onDisconnectedInternal(int32_t reason, int32_t error) {
         }
         if (error == 0x68 || error == 0x71) {
             if (connectionType != ConnectionTypeProxy) {
-                waitForReconnectTimer = true;
-                reconnectTimer->setTimeout(lastReconnectTimeout, false);
-                lastReconnectTimeout *= 2;
-                if (lastReconnectTimeout > 400) {
-                    lastReconnectTimeout = 400;
-                }
-                reconnectTimer->start();
+                shouldReconnect = true;
+                reconnectDelay = reconnectDelayMsForAttempt(failedConnectionCount);
             }
         } else {
             waitForReconnectTimer = false;
             if (connectionType == ConnectionTypeGenericMedia && currentDatacenter->isHandshaking(true) || connectionType == ConnectionTypeGeneric && (currentDatacenter->isHandshaking(false) || datacenterId == ConnectionsManager::getInstance(currentDatacenter->instanceNum).currentDatacenterId || datacenterId == ConnectionsManager::getInstance(currentDatacenter->instanceNum).movingToDatacenterId)) {
                 if (LOGS_ENABLED) DEBUG_D("connection(%p, account%u, dc%u, type %d) reconnect %s:%hu", this, currentDatacenter->instanceNum, currentDatacenter->getDatacenterId(), connectionType, hostAddress.c_str(), hostPort);
-                reconnectTimer->setTimeout(1000, false);
-                reconnectTimer->start();
+                shouldReconnect = true;
+                reconnectDelay = reconnectDelayMsForAttempt(failedConnectionCount);
             }
         }
+    }
+    if (shouldReconnect) {
+        waitForReconnectTimer = true;
+        reconnectTimer->setTimeout(reconnectDelay, false);
+        reconnectTimer->start();
     }
     usefullData = false;
 }
